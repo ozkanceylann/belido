@@ -4,7 +4,7 @@ const supa = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
 
 // Sekmeler
-const tabButtons = document.querySelectorAll('.tab-btn');
+const tabButtons = document.querySelectorAll('.sb-link');
 const tabs = document.querySelectorAll('.tab');
 
 
@@ -70,4 +70,9 @@ tb.innerHTML = rows.map(r => `
 <td>${r.tank_name||''}</td>
 <td>${Number(r.kg||0).toLocaleString('tr-TR')}</td>
 <td>${Number(r.acid||0).toFixed(4)}</td>
+</tr>
+`).join('');
+}
+
+
 refreshAll();
