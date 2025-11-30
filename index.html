@@ -46,7 +46,13 @@
         <label>Tedarikçi<select name="supplier_id" id="supplierSelect"></select></label>
 
         <label>Tank<select name="tank_id" id="tankSelect1"></select></label>
-        <label>Kalite<input type="text" name="kalite" placeholder="EXTRA V. / NATURAL 1." /></label>
+        <label>Kalite
+  <select name="kalite" required>
+    <option value="EXTRA V.">EXTRA V.</option>
+    <option value="NATURAL 1.">NATURAL 1.</option>
+    <option value="HAM">HAM</option>
+  </select>
+</label>
         <label>Asit (%)<input type="number" step="0.0001" name="acid" required /></label>
 
         <label>KG<input type="number" step="0.001" name="kg" required /></label>
