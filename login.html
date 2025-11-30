@@ -1,0 +1,39 @@
+<!-- ============================
+     login.html  (FINAL)
+============================= -->
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Belido | Giriş</title>
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="login-body">
+
+<div class="login-box">
+  <div class="login-brand">
+    <img src="logo.png" alt="Belido" class="logo-lg">
+    <h2>Belido Stok Panel</h2>
+  </div>
+
+  <label>Email
+    <input type="email" id="loginEmail" placeholder="mail@example.com" autocomplete="username">
+  </label>
+
+  <label>Şifre
+    <input type="password" id="loginPassword" autocomplete="current-password">
+  </label>
+
+  <button id="btnLogin" class="btn primary w-full">Giriş Yap</button>
+  <p id="loginMsg" class="muted"></p>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
