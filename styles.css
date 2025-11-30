@@ -29,62 +29,50 @@ body {
 
 /* ======================================
    SIDEBAR
-====================================== */
+
 .sidebar {
-  width: 260px;
-  background: var(--bg-light);
-  padding: 20px;
-  box-shadow: var(--shadow);
-  display:flex;
-  flex-direction:column;
-  gap:20px;
+  width: 240px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: var(--space-blue-light);
+  padding: 20px 0;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 
-.sb-header {
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-.sb-logo {
-  margin:0;
-  font-size: 22px;
-  font-weight:700;
-}
-.sb-user {
-  font-size: 14px;
-  color: var(--muted);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.logout-btn {
-  background: var(--danger);
-  border:none;
-  padding: 6px 10px;
-  border-radius: var(--radius);
-  color:white;
-  cursor:pointer;
-  font-size:13px;
+.sidebar .sb-header {
+  padding: 0 20px;
+  margin-bottom: 20px;
 }
 
 .sb-nav {
-  display:flex;
-  flex-direction:column;
-  gap:5px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 20px;
 }
+
 .sb-link {
-  background:none;
-  text-align:left;
+  background: none;
+  border: none;
   padding: 10px;
-  border-radius: var(--radius);
-  border:none;
-  cursor:pointer;
+  text-align: left;
   color: var(--text);
-  font-size: 15px;
-  opacity:0.8;
+  cursor: pointer;
+  border-radius: 6px;
 }
-.sb-link:hover { background: var(--bg-card); opacity:1; }
-.sb-link.active { background: var(--accent); color:#001224; opacity:1; }
+
+.sb-link.active {
+  background: var(--space-accent);
+  color: #001224;
+}
+
+/* ANA İÇERİK */
+.container {
+  margin-left: 240px;
+  padding: 20px;
+}
 
 /* ======================================
    ANA LAYOUT
