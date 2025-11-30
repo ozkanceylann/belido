@@ -10,6 +10,9 @@
 
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <!-- Excel (SheetJS) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -43,28 +46,37 @@
       <div class="grid">
         <label>Tarih<input type="date" name="date" required /></label>
         <label>Fiş No<input type="text" name="fis_no" /></label>
-        <label>Tedarikçi<select name="supplier_id" id="supplierSelect"></select></label>
 
-        <label>Tank<select name="tank_id" id="tankSelect1"></select></label>
+        <label>Tedarikçi
+          <select name="supplier_id" id="supplierSelect"></select>
+        </label>
+
+        <label>Tank
+          <select name="tank_id" id="tankSelect1"></select>
+        </label>
+
+        <!-- Kalite: 3 seçenekli -->
         <label>Kalite
-  <select name="kalite" required>
-    <option value="EXTRA V.">EXTRA V.</option>
-    <option value="NATURAL 1.">NATURAL 1.</option>
-    <option value="HAM">HAM</option>
-  </select>
-</label>
-        <label>Asit (%)<input type="number" step="0.0001" name="acid" required /></label>
+          <select name="kalite" required>
+            <option value="EXTRA V.">EXTRA V.</option>
+            <option value="NATURAL 1.">NATURAL 1.</option>
+            <option value="HAM">HAM</option>
+          </select>
+        </label>
 
+        <label>Asit (%)<input type="number" step="0.0001" name="acid" required /></label>
         <label>KG<input type="number" step="0.001" name="kg" required /></label>
-        <label>Birim Fiyat<input type="number" step="0.01" name="price" /></label>
-        <label>Komisyon<input type="number" step="0.01" name="komisyon" /></label>
+
+        <label>Birim Fiyat (₺)<input type="number" step="0.01" name="price" /></label>
+        <label>Komisyon (₺)<input type="number" step="0.01" name="komisyon" /></label>
 
         <label>K232<input type="number" step="0.0001" name="k232" /></label>
         <label>ΔK<input type="number" step="0.0001" name="delta_k" /></label>
+
         <label class="full">Açıklama<input type="text" name="aciklama" /></label>
       </div>
 
-      <button class="primary">Kaydet</button>
+      <button class="primary" type="submit">Kaydet</button>
       <p class="muted" id="entryMsg"></p>
     </form>
 
@@ -72,7 +84,9 @@
       <h3>Son Girişler</h3>
       <table id="entryTable">
         <thead>
-          <tr><th>Tarih</th><th>Fiş</th><th>Tedarikçi</th><th>Tank</th><th>KG</th><th>Asit</th></tr>
+          <tr>
+            <th>Tarih</th><th>Fiş</th><th>Tedarikçi</th><th>Tank</th><th>Kalite</th><th>KG</th><th>Asit</th><th>Fiyat</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -86,11 +100,35 @@
     <form id="exitForm" class="card">
       <div class="grid">
         <label>Tarih<input type="date" name="date" required /></label>
-        <label>Tank<select name="tank_id" id="tankSelect2"></select></label>
+
+        <label>Tank
+          <select name="tank_id" id="tankSelect2"></select>
+        </label>
+
+        <!-- Kalite seçimi çıkışta da zorunlu -->
+        <label>Kalite
+          <select name="kalite" required>
+            <option value="EXTRA V.">EXTRA V.</option>
+            <option value="NATURAL 1.">NATURAL 1.</option>
+            <option value="HAM">HAM</option>
+          </select>
+        </label>
+
         <label>KG<input type="number" step="0.001" name="kg" required /></label>
+
+        <!-- Satış fiyatı -->
+        <label>Satış Fiyatı (₺)
+          <input type="number" step="0.01" name="price" />
+        </label>
+
+        <!-- Fatura No -->
+        <label>Fatura No
+          <input type="text" name="invoice_no" />
+        </label>
+
         <label class="full">Açıklama<input type="text" name="description" /></label>
       </div>
-      <button class="primary">Kaydet</button>
+      <button class="primary" type="submit">Kaydet</button>
       <p class="muted" id="exitMsg"></p>
     </form>
 
@@ -98,7 +136,9 @@
       <h3>Son Çıkışlar</h3>
       <table id="exitTable">
         <thead>
-          <tr><th>Tarih</th><th>Tank</th><th>KG</th><th>Açıklama</th></tr>
+          <tr>
+            <th>Tarih</th><th>Tank</th><th>Kalite</th><th>KG</th><th>Satış Fiyatı</th><th>Fatura No</th><th>Açıklama</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -114,17 +154,45 @@
         <label>Tank Adı<input type="text" name="tank_name" required /></label>
         <label>Kapasite (KG)<input type="number" step="0.001" name="capacity_kg" required /></label>
       </div>
-      <button class="secondary">Yeni Tank Ekle</button>
+      <button class="secondary" type="submit">Yeni Tank Ekle</button>
       <p class="muted" id="tankMsg"></p>
     </form>
 
+    <!-- Tank Tablosu -->
     <div class="card">
+      <h3>Tank Tablosu</h3>
       <table id="tankTable">
         <thead>
-          <tr><th>Tank</th><th>Kapasite</th><th>Mevcut KG</th><th>Doluluk %</th><th>Ort. Asit</th></tr>
+          <tr>
+            <th>Tank</th><th>Kapasite</th><th>Mevcut KG</th><th>Doluluk %</th><th>Ort. Asit</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
+    </div>
+
+    <!-- Tank Görselleri (multi-progress bar) -->
+    <div class="card">
+      <h3>Tank Doluluk ve Kalite Dağılımı</h3>
+      <div id="tankVisuals"></div>
+      <!-- app.js, #tankVisuals içine her tank için:
+           <div class="tank-card" id="tank-<id>">
+             <div class="tank-card-head">
+               <strong>Tank A</strong>
+               <span>Doluluk: 75%</span>
+             </div>
+             <div class="tank-bar">
+               <div class="extra" style="width:0%"></div>
+               <div class="nat" style="width:0%"></div>
+               <div class="ham" style="width:0%"></div>
+             </div>
+             <div class="tank-legend">
+               <span class="dot extra"></span> EXTRA V. — <b>500 kg</b>
+               <span class="dot nat"></span> NATURAL 1. — <b>200 kg</b>
+               <span class="dot ham"></span> HAM — <b>50 kg</b>
+             </div>
+           </div>
+      -->
     </div>
   </section>
 
@@ -136,18 +204,60 @@
       <div class="grid">
         <label>Başlangıç<input type="date" id="repStart"></label>
         <label>Bitiş<input type="date" id="repEnd"></label>
-        <button id="btnRunReport" class="secondary">Rapor Çalıştır</button>
+        <button id="btnRunReport" class="secondary" type="button">Rapor Çalıştır</button>
+        <button id="btnExcel" class="secondary" type="button">Excel’e Aktar</button>
       </div>
+    </div>
 
+    <!-- Kolon Seçme -->
+    <div class="card">
+      <h3>Kolon Seç</h3>
+      <div class="cols-select" id="colsSelect">
+        <label><input type="checkbox" class="colToggle" data-col="product" checked> Kalite</label>
+        <label><input type="checkbox" class="colToggle" data-col="entryKg" checked> Giriş KG</label>
+        <label><input type="checkbox" class="colToggle" data-col="exitKg" checked> Çıkış KG</label>
+        <label><input type="checkbox" class="colToggle" data-col="avgBuy" checked> Ort. Alış</label>
+        <label><input type="checkbox" class="colToggle" data-col="avgSell" checked> Ort. Satış</label>
+        <label><input type="checkbox" class="colToggle" data-col="profit" checked> Kâr</label>
+        <label><input type="checkbox" class="colToggle" data-col="net" checked> Net KG</label>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="stats" id="reportStats"></div>
 
       <table id="reportTable">
         <thead>
-          <tr><th>Tank</th><th>Toplam Giriş</th><th>Toplam Çıkış</th><th>Net Stok</th><th>Ort. Asit</th></tr>
+          <tr>
+            <th class="col-product">Kalite</th>
+            <th class="col-entryKg">Giriş KG</th>
+            <th class="col-exitKg">Çıkış KG</th>
+            <th class="col-avgBuy">Ort. Alış</th>
+            <th class="col-avgSell">Ort. Satış</th>
+            <th class="col-profit">Kâr</th>
+            <th class="col-net">Net KG</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
+
+    <!-- (İsteğe bağlı) Tedarikçi bazlı tablo -->
+    <div class="card">
+      <h3>Tedarikçi Bazlı (Kalite Kırılımı)</h3>
+      <table id="supplierReportTable">
+        <thead>
+          <tr>
+            <th>Tedarikçi</th>
+            <th>Kalite</th>
+            <th>Toplam KG</th>
+            <th>Ort. Fiyat</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
   </section>
 
   <!-- TEDARİKÇİLER -->
@@ -159,15 +269,17 @@
         <label>İsim<input type="text" name="name" required /></label>
         <label>Adres<input type="text" name="address" /></label>
         <label>Telefon<input type="text" name="phone" /></label>
+        <!-- Not alanı eklendi -->
+        <label class="full">Not<input type="text" name="note" /></label>
       </div>
-      <button class="secondary">Ekle</button>
+      <button class="secondary" type="submit">Ekle</button>
       <p class="muted" id="supplierMsg"></p>
     </form>
 
     <div class="card">
       <table id="supplierTable">
         <thead>
-          <tr><th>İsim</th><th>Adres</th><th>Telefon</th></tr>
+          <tr><th>İsim</th><th>Adres</th><th>Telefon</th><th>Not</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -178,6 +290,5 @@
 
 <!-- JS -->
 <script src="app.js"></script>
-
 </body>
 </html>
