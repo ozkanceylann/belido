@@ -23,6 +23,33 @@ async function checkLogin() {
 }
 checkLogin();
 
+// LOGIN SAYFASINDA KULLANILAN EVENT
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("loginForm");
+  if (!form) return; // login sayfasında değilsek çık
+
+  const msg = document.getElementById("loginMsg");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    const { data, error } = await supa.auth.signInWithPassword({
+      email, password
+    });
+
+    if (error) {
+      msg.textContent = "Hata: " + error.message;
+      return;
+    }
+
+    window.location.href = "index.html";
+  });
+});
+
+
 // =============================
 // Logout
 // =============================
