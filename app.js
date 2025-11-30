@@ -22,7 +22,10 @@ async function checkAuth() {
     data.session.user.email || "Kullanıcı";
 }
 
-checkAuth();
+if (location.pathname.includes("index.html")) {
+  checkAuth();
+}
+
 
 // =============================
 //  LOGOUT
