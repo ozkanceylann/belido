@@ -1,298 +1,310 @@
-// =================================================
-// LOGIN SAYFASI İŞLEMLERİ
-// =================================================
+// =============================
+//  SUPABASE BAĞLANTISI
+// =============================
+const SUPABASE_URL = "https://dnicipqyxoadjcizpvxy.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuaWNpcHF5eG9hZGpjaXpwdnh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MTcwNzcsImV4cCI6MjA3ODM5MzA3N30._Roo83R-khWLoiEadVoRMmAnGR1AD4Z_0_5OwbemCwk";
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const loginForm = document.getElementById("loginForm");
+const { createClient } = supabase;
+const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  // LOGIN SAYFASI
-  if (loginForm) {
-    const { data } = await supa.auth.getUser();
-    if (data.user) window.location.href = "index.html";
+// =============================
+//  LOGIN KONTROLÜ
+// =============================
+async function checkAuth() {
+  const { data } = await supa.auth.getSession();
 
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const email = document.getElementById("loginEmail").value;
-      const password = document.getElementById("loginPassword").value;
-      const msg = document.getElementById("loginMsg");
-
-      msg.textContent = "Giriş yapılıyor...";
-
-      const { error } = await supa.auth.signInWithPassword({ email, password });
-
-      if (error) msg.textContent = "Hata: " + error.message;
-      else window.location.href = "index.html";
-    });
-
+  // eğer oturum yoksa login'e yolla
+  if (!data.session) {
+    if (!location.pathname.includes("login.html")) {
+      window.location.href = "login.html";
+    }
     return;
   }
 
-  // PANEL SAYFASI → Login kontrol
-  const { data: auth } = await supa.auth.getUser();
-  if (!auth.user) window.location.href = "login.html";
+  // eğer oturum varsa login page'deyse index'e yolla
+  if (location.pathname.includes("login.html")) {
+    window.location.href = "index.html";
+  }
+}
 
-  document.getElementById("userEmail").textContent = auth.user.email;
 
-  // =================================================
-  // ÇIKIŞ
-  // =================================================
+if (location.pathname.includes("index.html")) {
+  checkAuth();
+}
 
-  document.getElementById("btnLogout")?.addEventListener("click", async () => {
+
+// =============================
+//  LOGOUT
+// =============================
+const logoutBtn = document.getElementById("btnLogout");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", async () => {
     await supa.auth.signOut();
     window.location.href = "login.html";
   });
+}
 
-  // =================================================
-  // TAB GEÇİŞLERİ
-  // =================================================
 
-  document.querySelectorAll(".sb-link").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".sb-link").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+// =============================
+//  SIDEBAR TAB GEÇİŞİ
+// =============================
+const tabButtons = document.querySelectorAll(".sb-link");
+const tabs = document.querySelectorAll(".tab");
 
-      const tab = btn.dataset.tab;
-      document.querySelectorAll(".tab").forEach(t => (t.style.display = "none"));
-      document.getElementById(tab).style.display = "block";
-    });
+tabButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    tabButtons.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const id = btn.dataset.tab;
+    tabs.forEach((t) => (t.style.display = t.id === id ? "block" : "none"));
   });
-
-  // =================================================
-  // TEDARİKÇİLERİ YÜKLE
-  // =================================================
-
-  async function loadSuppliers() {
-    const { data } = await supa.from("suppliers").select("*").order("id", { ascending: false });
-
-    const select = document.getElementById("supplierSelect");
-    const tbody = document.querySelector("#supplierTable tbody");
-
-    if (select) select.innerHTML = "";
-    if (tbody) tbody.innerHTML = "";
-
-    data?.forEach(s => {
-      if (select) select.innerHTML += `<option value="${s.id}">${s.name}</option>`;
-
-      if (tbody)
-        tbody.innerHTML += `
-          <tr>
-            <td>${s.name}</td>
-            <td>${s.address || ""}</td>
-            <td>${s.phone || ""}</td>
-            <td>${s.note || ""}</td>
-          </tr>
-        `;
-    });
-  }
-
-  loadSuppliers();
-
-  // =================================================
-  // TANKLARI YÜKLE
-  // =================================================
-
-  async function loadTanks() {
-    const { data } = await supa.from("tanks").select("*");
-
-    const sel1 = document.getElementById("tankSelect1");
-    const sel2 = document.getElementById("tankSelect2");
-    const tbody = document.querySelector("#tankTable tbody");
-
-    if (sel1) sel1.innerHTML = "";
-    if (sel2) sel2.innerHTML = "";
-    if (tbody) tbody.innerHTML = "";
-
-    data?.forEach(t => {
-      if (sel1) sel1.innerHTML += `<option value="${t.id}">${t.tank_name}</option>`;
-      if (sel2) sel2.innerHTML += `<option value="${t.id}">${t.tank_name}</option>`;
-      if (tbody)
-        tbody.innerHTML += `
-          <tr>
-            <td>${t.tank_name}</td>
-            <td>${t.capacity_kg}</td>
-            <td>${t.current_kg || 0}</td>
-            <td>${((t.current_kg / t.capacity_kg) * 100).toFixed(1)}%</td>
-            <td>${t.avg_acid || "-"}</td>
-          </tr>
-        `;
-    });
-  }
-
-  loadTanks();
-
-  // =================================================
-  // MAL GİRİŞ KAYIT
-  // =================================================
-
-  document.getElementById("entryForm")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const form = new FormData(e.target);
-    const obj = Object.fromEntries(form.entries());
-    obj.kg = parseFloat(obj.kg);
-    obj.acid = parseFloat(obj.acid);
-
-    const msg = document.getElementById("entryMsg");
-
-    const { error } = await supa.from("oil_entries").insert(obj);
-
-    if (error) msg.textContent = "Hata: " + error.message;
-    else {
-      msg.textContent = "Kayıt eklendi";
-      loadEntryTable();
-      loadTanks();
-      e.target.reset();
-    }
-  });
-
-  async function loadEntryTable() {
-    const tbody = document.querySelector("#entryTable tbody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
-
-    const { data } = await supa
-      .from("oil_entries")
-      .select("*, suppliers(name), tanks(tank_name)")
-      .order("id", { ascending: false });
-
-    data?.forEach(r => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${r.date}</td>
-          <td>${r.fis_no || ""}</td>
-          <td>${r.suppliers?.name || ""}</td>
-          <td>${r.tanks?.tank_name || ""}</td>
-          <td>${r.kalite}</td>
-          <td>${r.kg}</td>
-          <td>${r.acid}</td>
-          <td>${r.price || ""}</td>
-        </tr>`;
-    });
-  }
-
-  loadEntryTable();
-
-  // =================================================
-  // MAL ÇIKIŞ KAYIT
-  // =================================================
-
-  document.getElementById("exitForm")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const obj = Object.fromEntries(new FormData(e.target));
-    obj.kg = parseFloat(obj.kg);
-
-    const msg = document.getElementById("exitMsg");
-
-    const { error } = await supa.from("oil_exits").insert(obj);
-
-    if (error) msg.textContent = "Hata: " + error.message;
-    else {
-      msg.textContent = "Kayıt eklendi";
-      loadExitTable();
-      loadTanks();
-      e.target.reset();
-    }
-  });
-
-  async function loadExitTable() {
-    const tbody = document.querySelector("#exitTable tbody");
-    if (!tbody) return;
-
-    tbody.innerHTML = "";
-
-    const { data } = await supa
-      .from("oil_exits")
-      .select("*, tanks(tank_name)")
-      .order("id", { ascending: false });
-
-    data?.forEach(r => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${r.date}</td>
-          <td>${r.tanks?.tank_name || ""}</td>
-          <td>${r.kalite}</td>
-          <td>${r.kg}</td>
-          <td>${r.price || ""}</td>
-          <td>${r.invoice_no || ""}</td>
-          <td>${r.description || ""}</td>
-        </tr>`;
-    });
-  }
-
-  loadExitTable();
-
-  // =================================================
-  // TEDARİKÇİ EKLE
-  // =================================================
-
-  document.getElementById("supplierForm")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const obj = Object.fromEntries(new FormData(e.target));
-    const msg = document.getElementById("supplierMsg");
-
-    const { error } = await supa.from("suppliers").insert(obj);
-
-    if (error) msg.textContent = "Hata: " + error.message;
-    else {
-      msg.textContent = "Eklendi";
-      loadSuppliers();
-      e.target.reset();
-    }
-  });
-
-  // =================================================
-  // RAPORLAMA
-  // =================================================
-
-  document.getElementById("btnRunReport")?.addEventListener("click", async () => {
-    const s = document.getElementById("repStart").value;
-    const e = document.getElementById("repEnd").value;
-
-    const tbody = document.querySelector("#reportTable tbody");
-    tbody.innerHTML = "";
-
-    const { data: giris } = await supa
-      .from("oil_entries")
-      .select("*")
-      .gte("date", s || "1900-01-01")
-      .lte("date", e || "2999-12-31");
-
-    const { data: cikis } = await supa
-      .from("oil_exits")
-      .select("*")
-      .gte("date", s || "1900-01-01")
-      .lte("date", e || "2999-12-31");
-
-    const kaliteList = ["EXTRA V.", "NATURAL 1.", "HAM"];
-
-    kaliteList.forEach(k => {
-      const g = giris.filter(r => r.kalite === k);
-      const c = cikis.filter(r => r.kalite === k);
-
-      const gkg = g.reduce((t, x) => t + x.kg, 0);
-      const ckg = c.reduce((t, x) => t + x.kg, 0);
-
-      const avgBuy = gkg ? (g.reduce((t,x)=>t+(x.price||0)*x.kg,0)/gkg).toFixed(2) : "-";
-      const avgSell = ckg ? (c.reduce((t,x)=>t+(x.price||0)*x.kg,0)/ckg).toFixed(2) : "-";
-
-      const net = gkg - ckg;
-      const kar = (avgSell !== "-" && avgBuy !== "-") ? ((avgSell - avgBuy)*ckg).toFixed(2) : "-";
-
-      tbody.innerHTML += `
-        <tr>
-          <td>${k}</td>
-          <td>${gkg}</td>
-          <td>${ckg}</td>
-          <td>${avgBuy}</td>
-          <td>${avgSell}</td>
-          <td>${kar}</td>
-          <td>${net}</td>
-        </tr>
-      `;
-    });
-  });
-
 });
+
+// =============================
+//  DROPDOWN VERİLERİ YÜKLEME
+// =============================
+async function loadSuppliers() {
+  const { data, error } = await supa.from("suppliers").select("*").order("name");
+  if (error) return console.error(error);
+
+  const sel = document.getElementById("supplierSelect");
+  sel.innerHTML = data.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
+
+  renderSupplierTable(data);
+}
+
+async function loadTanks() {
+  const { data, error } = await supa.from("v_tank_status").select("*");
+  if (error) return console.error(error);
+
+  const sel1 = document.getElementById("tankSelect1");
+  const sel2 = document.getElementById("tankSelect2");
+
+  sel1.innerHTML = data.map(t => `<option value="${t.tank_id}">${t.tank_name}</option>`).join("");
+  sel2.innerHTML = sel1.innerHTML;
+
+  renderTankTable(data);
+}
+
+// =============================
+//  TABLO RENDER FONKSİYONLARI
+// =============================
+function renderSupplierTable(rows) {
+  const tb = document.querySelector("#supplierTable tbody");
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.name}</td>
+      <td>${r.address || ""}</td>
+      <td>${r.phone || ""}</td>
+    </tr>
+  `).join("");
+}
+
+function renderTankTable(rows) {
+  const tb = document.querySelector("#tankTable tbody");
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.tank_name}</td>
+      <td>${r.capacity_kg}</td>
+      <td>${r.current_kg}</td>
+      <td>${r.fill_percent}%</td>
+      <td>${Number(r.weighted_acid).toFixed(4)}</td>
+    </tr>
+  `).join("");
+}
+
+function renderEntryTable(rows) {
+  const tb = document.querySelector("#entryTable tbody");
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.date}</td>
+      <td>${r.fis_no || ""}</td>
+      <td>${r.supplier_name || ""}</td>
+      <td>${r.tank_name || ""}</td>
+      <td>${r.kg}</td>
+      <td>${Number(r.acid).toFixed(4)}</td>
+    </tr>
+  `).join("");
+}
+
+function renderExitTable(rows) {
+  const tb = document.querySelector("#exitTable tbody");
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.date}</td>
+      <td>${r.tank_name || ""}</td>
+      <td>${r.kg}</td>
+      <td>${r.description || ""}</td>
+    </tr>
+  `).join("");
+}
+
+// =============================
+//  FORMLAR
+// =============================
+document.getElementById("entryForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const payload = Object.fromEntries(fd.entries());
+
+  payload.kg = Number(payload.kg);
+  payload.acid = Number(payload.acid);
+
+  const { error } = await supa.from("oil_entries").insert(payload);
+  const msg = document.getElementById("entryMsg");
+
+  msg.textContent = error ? "Hata: " + error.message : "Kayıt eklendi";
+  if (!error) e.target.reset();
+  refreshAll();
+});
+
+document.getElementById("exitForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const payload = Object.fromEntries(fd.entries());
+
+  payload.kg = Number(payload.kg);
+
+  const { error } = await supa.from("oil_exits").insert(payload);
+  const msg = document.getElementById("exitMsg");
+
+  msg.textContent = error ? "Hata: " + error.message : "Çıkış yapıldı";
+  if (!error) e.target.reset();
+  refreshAll();
+});
+
+document.getElementById("tankForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const payload = Object.fromEntries(fd.entries());
+  payload.capacity_kg = Number(payload.capacity_kg);
+
+  const { error } = await supa.from("tanks").insert(payload);
+  const msg = document.getElementById("tankMsg");
+
+  msg.textContent = error ? "Hata: " + error.message : "Tank eklendi";
+  if (!error) e.target.reset();
+  refreshAll();
+});
+
+document.getElementById("supplierForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const payload = Object.fromEntries(fd.entries());
+
+  const { error } = await supa.from("suppliers").insert(payload);
+  const msg = document.getElementById("supplierMsg");
+
+  msg.textContent = error ? "Hata: " + error.message : "Tedarikçi eklendi";
+  if (!error) e.target.reset();
+  refreshAll();
+});
+
+// =============================
+//  RAPORLAR
+// =============================
+document.getElementById("btnRunReport").addEventListener("click", async () => {
+  const start = document.getElementById("repStart").value;
+  const end = document.getElementById("repEnd").value;
+
+  let q1 = supa.from("oil_entries").select("kg, acid, date, tank_id, tanks:tank_id(tank_name)");
+  let q2 = supa.from("oil_exits").select("kg, date, tank_id, tanks:tank_id(tank_name)");
+
+  if (start) { q1 = q1.gte("date", start); q2 = q2.gte("date", start); }
+  if (end) { q1 = q1.lte("date", end); q2 = q2.lte("date", end); }
+
+  const [{ data: E }, { data: X }] = await Promise.all([q1, q2]);
+
+  const map = {};
+
+  (E || []).forEach(r => {
+    const name = r.tanks?.tank_name || "-";
+    if (!map[name]) map[name] = { inKg: 0, outKg: 0, acids: [], weights: [] };
+    map[name].inKg += r.kg;
+    map[name].acids.push(r.acid);
+    map[name].weights.push(r.kg);
+  });
+
+  (X || []).forEach(r => {
+    const name = r.tanks?.tank_name || "-";
+    if (!map[name]) map[name] = { inKg: 0, outKg: 0, acids: [], weights: [] };
+    map[name].outKg += r.kg;
+  });
+
+  const tb = document.querySelector("#reportTable tbody");
+  tb.innerHTML = "";
+
+  for (const tank in map) {
+    const d = map[tank];
+    const net = d.inKg - d.outKg;
+
+    let wAcid = 0;
+    const totalW = d.weights.reduce((a, b) => a + b, 0);
+    if (totalW > 0) {
+      wAcid = d.acids.reduce((sum, a, i) => sum + a * d.weights[i], 0) / totalW;
+    }
+
+    tb.innerHTML += `
+      <tr>
+        <td>${tank}</td>
+        <td>${d.inKg}</td>
+        <td>${d.outKg}</td>
+        <td>${net}</td>
+        <td>${wAcid.toFixed(4)}</td>
+      </tr>
+    `;
+  }
+});
+
+// =============================
+//  SON LİSTELER
+// =============================
+async function refreshRecentLists() {
+  const { data: entries } = await supa
+    .from("oil_entries")
+    .select("date, fis_no, kg, acid, suppliers:supplier_id(name), tanks:tank_id(tank_name)")
+    .order("id", { ascending: false })
+    .limit(10);
+
+  const formatted = entries.map(r => ({
+    date: r.date,
+    fis_no: r.fis_no,
+    kg: r.kg,
+    acid: r.acid,
+    supplier_name: r.suppliers?.name,
+    tank_name: r.tanks?.tank_name
+  }));
+
+  renderEntryTable(formatted);
+
+  const { data: exits } = await supa
+    .from("oil_exits")
+    .select("date, kg, description, tanks:tank_id(tank_name)")
+    .order("id", { ascending: false })
+    .limit(10);
+
+  const formatted2 = exits.map(r => ({
+    date: r.date,
+    kg: r.kg,
+    description: r.description,
+    tank_name: r.tanks?.tank_name
+  }));
+
+  renderExitTable(formatted2);
+}
+
+// =============================
+//  HEPSİNİ YENİLE
+// =============================
+async function refreshAll() {
+  await Promise.all([
+    loadSuppliers(),
+    loadTanks(),
+    refreshRecentLists(),
+  ]);
+}
+
+// İlk yükleme
+refreshAll();
