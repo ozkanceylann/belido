@@ -5,11 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Giriş Yap</title>
 
-  <!-- Supabase -->
+  <!-- Supabase SDK -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
-  <!-- APP AYARLARI -->
-  <script src="app.js"></script>
 
   <style>
     :root{
@@ -19,75 +16,82 @@
       --text:#e8eef7;
       --muted:#9bb3c9;
     }
+    *{box-sizing:border-box}
     body{
       margin:0; padding:0; height:100vh;
       background:var(--space-blue);
       display:flex; align-items:center; justify-content:center;
-      font-family:system-ui, sans-serif; color:var(--text);
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--text);
     }
     .login-box{
       width:100%; max-width:380px;
       background:var(--space-blue-light);
-      padding:30px;
+      padding:28px;
       border-radius:14px;
-      box-shadow:0 0 25px rgba(0,0,0,0.4);
+      box-shadow:0 8px 30px rgba(0,0,0,0.35);
     }
-    h2{ margin-top:0; text-align:center; }
-    label{
-      display:flex; flex-direction:column;
-      margin-top:14px; font-size:14px;
-    }
+    h2{ margin:0 0 6px; text-align:center; }
+    p.sub{ margin:0 0 16px; text-align:center; color:var(--muted); font-size:13px; }
+    label{ display:flex; flex-direction:column; margin-top:14px; font-size:14px; }
     input{
-      margin-top:6px;
-      padding:12px;
-      border:none;
-      border-radius:8px;
-      background:#0a1626;
-      color:var(--text);
+      margin-top:6px; padding:12px;
       border:1px solid #1e334f;
+      border-radius:10px; background:#0a1626; color:var(--text);
     }
     button{
-      width:100%; margin-top:20px;
-      padding:12px;
-      background:var(--space-accent);
-      color:#001224;
-      border:none;
-      border-radius:8px;
-      cursor:pointer; font-weight:700;
-      font-size:15px;
+      width:100%; margin-top:18px; padding:12px;
+      background:var(--space-accent); color:#001224;
+      border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:15px;
     }
-    .muted{
-      margin-top:10px;
-      font-size:13px;
-      color:var(--muted);
-      text-align:center;
-      white-space: pre-line;
-    }
+    button[disabled]{ opacity:.6; cursor:not-allowed; }
+    .muted{ margin-top:10px; font-size:13px; color:var(--muted); text-align:center; white-space:pre-line; min-height:1.2em; }
   </style>
 </head>
 <body>
 
 <div class="login-box">
   <h2>Giriş Yap</h2>
+  <p class="sub">Lütfen email ve şifrenizi girin</p>
 
-  <label>Email
-    <input type="email" id="loginEmail" placeholder="mail@example.com">
-  </label>
+  <form id="loginForm">
+    <label>Email
+      <input type="email" id="loginEmail" autocomplete="username" placeholder="mail@example.com" required>
+    </label>
 
-  <label>Şifre
-    <input type="password" id="loginPassword">
-  </label>
+    <label>Şifre
+      <input type="password" id="loginPassword" autocomplete="current-password" required>
+    </label>
 
-  <button id="btnLogin">Giriş Yap</button>
+    <button id="btnLogin" type="submit">Giriş Yap</button>
+  </form>
+
   <p id="loginMsg" class="muted"></p>
 </div>
 
 <script>
-  
-  document.getElementById("btnLogin").addEventListener("click", async () => {
-    const email = document.getElementById("loginEmail").value;
+  // ---- Supabase Bağlantısı (BURAYI DOLDUR) ----
+  const SUPABASE_URL  = "https://dnicipqyxoadjcizpvxy.supabase.co";       // kendi URL'in
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";        // kendi anon key'in
+
+  const { createClient } = supabase;
+  const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // Eğer kullanıcı zaten girişliyse index'e gönder
+  (async () => {
+    const { data } = await supa.auth.getUser();
+    if (data.user) window.location.href = "index.html";
+  })();
+
+  // Form gönderimi
+  const form = document.getElementById("loginForm");
+  const btn  = document.getElementById("btnLogin");
+  const msg  = document.getElementById("loginMsg");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
-    const msg = document.getElementById("loginMsg");
 
     if (!email || !password) {
       msg.textContent = "Email ve şifre boş olamaz.";
@@ -95,40 +99,21 @@
     }
 
     msg.textContent = "Giriş yapılıyor...";
+    btn.disabled = true;
 
-    const { data, error } = await supa.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
-      msg.textContent = "Hata: " + error.message;
-      return;
+    try {
+      const { error } = await supa.auth.signInWithPassword({ email, password });
+      if (error) {
+        msg.textContent = "Hata: " + error.message;
+        btn.disabled = false;
+        return;
+      }
+      msg.textContent = "Başarılı! Yönlendiriliyor...";
+      window.location.href = "index.html";
+    } catch (err) {
+      msg.textContent = "Beklenmeyen hata: " + (err?.message || err);
+      btn.disabled = false;
     }
-
-    msg.textContent = "Başarılı! Yönlendiriliyor...";
-    window.location.href = "index.html";
-  });
-</script>
-<script src="app.js"></script>
-
-<script>
-  document.getElementById("btnLogin").addEventListener("click", async () => {
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-    const msg = document.getElementById("loginMsg");
-
-    const { data, error } = await supa.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      msg.textContent = "Hata: " + error.message;
-      return;
-    }
-
-    window.location.href = "index.html";
   });
 </script>
 
