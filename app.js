@@ -1,8 +1,8 @@
 // =============================
 //  SUPABASE BAĞLANTISI
 // =============================
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://dnicipqyxoadjcizpvxy.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuaWNpcHF5eG9hZGpjaXpwdnh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MTcwNzcsImV4cCI6MjA3ODM5MzA3N30._Roo83R-khWLoiEadVoRMmAnGR1AD4Z_0_5OwbemCwk";
 
 const { createClient } = supabase;
 const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
