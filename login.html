@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Giriş Yap</title>
 
-  <!-- Supabase SDK -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
+  <!-- Styling -->
   <style>
     :root{
       --space-blue:#0a1a2f;
@@ -21,7 +19,7 @@
       margin:0; padding:0; height:100vh;
       background:var(--space-blue);
       display:flex; align-items:center; justify-content:center;
-      font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--text);
+      font-family:system-ui, sans-serif; color:var(--text);
     }
     .login-box{
       width:100%; max-width:380px;
@@ -43,10 +41,14 @@
       background:var(--space-accent); color:#001224;
       border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:15px;
     }
-    button[disabled]{ opacity:.6; cursor:not-allowed; }
     .muted{ margin-top:10px; font-size:13px; color:var(--muted); text-align:center; white-space:pre-line; min-height:1.2em; }
   </style>
+
+  <!-- Supabase sadece app.js içinde! -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="app.js" defer></script>
 </head>
+
 <body>
 
 <div class="login-box">
@@ -55,11 +57,11 @@
 
   <form id="loginForm">
     <label>Email
-      <input type="email" id="loginEmail" autocomplete="username" placeholder="mail@example.com" required>
+      <input type="email" id="loginEmail" required>
     </label>
 
     <label>Şifre
-      <input type="password" id="loginPassword" autocomplete="current-password" required>
+      <input type="password" id="loginPassword" required>
     </label>
 
     <button id="btnLogin" type="submit">Giriş Yap</button>
@@ -67,55 +69,6 @@
 
   <p id="loginMsg" class="muted"></p>
 </div>
-
-<script>
-  // ---- Supabase Bağlantısı (BURAYI DOLDUR) ----
-  const SUPABASE_URL  = "https://dnicipqyxoadjcizpvxy.supabase.co";       // kendi URL'in
-  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";        // kendi anon key'in
-
-  const { createClient } = supabase;
-  const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
-
-  // Eğer kullanıcı zaten girişliyse index'e gönder
-  (async () => {
-    const { data } = await supa.auth.getUser();
-    if (data.user) window.location.href = "index.html";
-  })();
-
-  // Form gönderimi
-  const form = document.getElementById("loginForm");
-  const btn  = document.getElementById("btnLogin");
-  const msg  = document.getElementById("loginMsg");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
-
-    if (!email || !password) {
-      msg.textContent = "Email ve şifre boş olamaz.";
-      return;
-    }
-
-    msg.textContent = "Giriş yapılıyor...";
-    btn.disabled = true;
-
-    try {
-      const { error } = await supa.auth.signInWithPassword({ email, password });
-      if (error) {
-        msg.textContent = "Hata: " + error.message;
-        btn.disabled = false;
-        return;
-      }
-      msg.textContent = "Başarılı! Yönlendiriliyor...";
-      window.location.href = "index.html";
-    } catch (err) {
-      msg.textContent = "Beklenmeyen hata: " + (err?.message || err);
-      btn.disabled = false;
-    }
-  });
-</script>
 
 </body>
 </html>
