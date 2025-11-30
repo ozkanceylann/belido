@@ -36,10 +36,15 @@ if (location.pathname.includes("index.html")) {
 // =============================
 //  LOGOUT
 // =============================
-document.getElementById("btnLogout").addEventListener("click", async () => {
-  await supa.auth.signOut();
-  window.location.href = "login.html";
-});
+const logoutBtn = document.getElementById("btnLogout");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", async () => {
+    await supa.auth.signOut();
+    window.location.href = "login.html";
+  });
+}
+
 
 // =============================
 //  SIDEBAR TAB GEÇİŞİ
