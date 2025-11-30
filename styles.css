@@ -1,260 +1,252 @@
-/* =============================
-   GLOBAL TEMA RENKLERİ
-============================= */
+/* ======================================
+   GENEL TEMA
+====================================== */
 :root {
-  --space-bg: #081523;
-  --space-bg-light: #0b1e33;
-  --space-panel: #0f1f35;
-  --space-border: #1b3354;
-  --space-accent: #3ba9ff;
-  --space-accent-soft: rgba(59,169,255,0.35);
-
-  --text: #e6efff;
-  --text-muted: #9bb3c9;
+  --bg: #0a1a2f;
+  --bg-light: #122b4a;
+  --bg-card: #152a45;
+  --accent: #3ba9ff;
+  --accent-soft: #5bc0ff;
+  --text: #e8eef7;
+  --muted: #9bb3c9;
+  --danger: #ff6b6b;
+  --yellow: #ffd43b;
 
   --radius: 12px;
+  --shadow: 0 0 20px rgba(0,0,0,0.25);
 }
 
-/* =============================
-   GENEL
-============================= */
 body {
-  margin: 0;
-  background: var(--space-bg);
+  margin:0;
+  padding:0;
+  background: var(--bg);
   color: var(--text);
   font-family: system-ui, sans-serif;
+  display:flex;
+  height:100vh;
+  overflow:hidden;
 }
 
-h1, h2, h3 {
-  margin-top: 0;
-}
-
-.container {
-  padding: 25px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-/* =============================
+/* ======================================
    SIDEBAR
-============================= */
+====================================== */
 .sidebar {
-  width: 240px;
-  background: var(--space-bg-light);
-  border-right: 1px solid var(--space-border);
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
+  width: 260px;
+  background: var(--bg-light);
   padding: 20px;
-  box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+  box-shadow: var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:20px;
 }
 
 .sb-header {
-  margin-bottom: 25px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
-
 .sb-logo {
+  margin:0;
   font-size: 22px;
-  margin: 0 0 10px;
-  color: var(--space-accent);
-  text-shadow: 0 0 10px var(--space-accent-soft);
+  font-weight:700;
 }
-
 .sb-user {
-  font-size: 13px;
-  margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--muted);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
-
-#userEmail {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--text-muted);
-}
-
 .logout-btn {
-  width: 100%;
-  padding: 8px;
-  background: rgba(255,60,60,0.15);
-  border: 1px solid rgba(255,80,80,0.3);
+  background: var(--danger);
+  border:none;
+  padding: 6px 10px;
   border-radius: var(--radius);
-  color: #ff8d8d;
-  cursor: pointer;
+  color:white;
+  cursor:pointer;
+  font-size:13px;
 }
 
-/* Menü */
 .sb-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
 }
-
 .sb-link {
-  padding: 12px 14px;
-  background: var(--space-panel);
-  border: 1px solid var(--space-border);
+  background:none;
+  text-align:left;
+  padding: 10px;
   border-radius: var(--radius);
-  text-align: left;
+  border:none;
+  cursor:pointer;
   color: var(--text);
-  cursor: pointer;
-  transition: 0.2s;
+  font-size: 15px;
+  opacity:0.8;
 }
+.sb-link:hover { background: var(--bg-card); opacity:1; }
+.sb-link.active { background: var(--accent); color:#001224; opacity:1; }
 
-.sb-link:hover {
-  background: #143057;
-  border-color: var(--space-accent);
-}
-
-.sb-link.active {
-  background: var(--space-accent);
-  color: #001018;
-  border-color: var(--space-accent);
-  box-shadow: 0 0 12px var(--space-accent-soft);
-}
-
-/* =============================
-   İÇERİK (SIDEBAR SAĞ TARAFI)
-============================= */
-.layout {
-  margin-left: 260px;
+/* ======================================
+   ANA LAYOUT
+====================================== */
+.container.layout {
+  flex:1;
+  overflow-y:auto;
   padding: 25px;
 }
 
-/* =============================
-   KARTLAR
-============================= */
+h2 {
+  margin-top:0;
+  margin-bottom:15px;
+  font-size: 24px;
+}
+
 .card {
-  background: var(--space-panel);
-  border: 1px solid var(--space-border);
-  padding: 18px;
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: var(--radius);
+  margin-bottom: 25px;
+  box-shadow: var(--shadow);
+}
+
+/* ======================================
+   FORM GRID
+====================================== */
+.grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+  gap: 16px;
+}
+
+label { display:flex; flex-direction:column; font-size: 14px; }
+input, select {
+  margin-top:6px;
+  padding: 12px;
+  border:none;
+  border-radius: var(--radius);
+  background:#0a1626;
+  color: var(--text);
+}
+.full { grid-column:1 / -1; }
+
+/* ======================================
+   BUTTONS
+====================================== */
+button.primary {
+  background: var(--accent);
+  color:#001224;
+  border:none;
+  padding: 14px;
+  width:100%;
+  border-radius: var(--radius);
+  font-weight:700;
+  margin-top:15px;
+}
+button.secondary {
+  background: var(--bg-light);
+  color: var(--text);
+  padding: 12px 20px;
+  border:none;
+  border-radius: var(--radius);
+  cursor:pointer;
+}
+button.secondary:hover { background: var(--accent-soft); }
+
+.muted { margin-top:10px; font-size:13px; color: var(--muted); }
+
+/* ======================================
+   TABLO
+====================================== */
+table {
+  width:100%;
+  border-collapse: collapse;
+  margin-top:10px;
+}
+th, td {
+  padding:10px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  text-align:left;
+  font-size:14px;
+}
+th { background: rgba(255,255,255,0.08); }
+tbody tr:hover { background: rgba(255,255,255,0.05); }
+
+/* ======================================
+   RAPOR – KOLON SEÇİMİ
+====================================== */
+.cols-select {
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  font-size:14px;
+}
+.cols-select input {
+  width:auto;
+  height:auto;
+}
+
+/* ======================================
+   TANK GÖRSELLERİ
+====================================== */
+.tank-card {
+  background: var(--bg-light);
+  padding: 15px;
   border-radius: var(--radius);
   margin-bottom: 20px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.25);
+  box-shadow: var(--shadow);
 }
 
-/* =============================
-   FORM ELEMANLARI
-============================= */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+.tank-card-head {
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:10px;
 }
 
-label {
-  display: flex;
-  flex-direction: column;
-  font-size: 14px;
-  color: var(--text-muted);
+.tank-bar {
+  display:flex;
+  width:100%;
+  height: 18px;
+  border-radius:9px;
+  overflow:hidden;
+  margin-bottom:10px;
 }
+.tank-bar .extra { background: var(--accent); }
+.tank-bar .nat { background: var(--yellow); }
+.tank-bar .ham { background: var(--danger); }
 
-input, select {
-  margin-top: 6px;
-  padding: 10px 12px;
-  background: #07101c;
-  border: 1px solid var(--space-border);
-  border-radius: var(--radius);
-  color: var(--text);
+.tank-legend {
+  font-size:13px;
+  line-height:1.5;
 }
-
-input:focus, select:focus {
-  outline: 1px solid var(--space-accent);
-  box-shadow: 0 0 6px var(--space-accent-soft);
+.dot {
+  width:12px;
+  height:12px;
+  display:inline-block;
+  border-radius:50%;
+  margin-right:5px;
 }
+.dot.extra { background: var(--accent); }
+.dot.nat { background: var(--yellow); }
+.dot.ham { background: var(--danger); }
 
-/* Butonlar */
-button.primary {
-  padding: 12px;
-  background: var(--space-accent);
-  border: none;
-  color: #001220;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-weight: 700;
-  box-shadow: 0 0 12px var(--space-accent-soft);
-}
-
-button.secondary {
-  padding: 12px;
-  background: #204d80;
-  border: 1px solid var(--space-accent);
-  color: var(--text);
-  border-radius: var(--radius);
-  cursor: pointer;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-.full {
-  grid-column: 1 / -1;
-}
-
-.muted {
-  color: var(--text-muted);
-  font-size: 13px;
-  margin-top: 8px;
-}
-
-/* =============================
-   TABLOLAR
-============================= */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-th, td {
-  padding: 10px 8px;
-  border-bottom: 1px solid var(--space-border);
-}
-
-th {
-  text-align: left;
-  color: var(--space-accent);
-  font-weight: 600;
-}
-
-tr:hover {
-  background: rgba(59,169,255,0.08);
-}
-
-/* =============================
-   RAPOR KAPSÜLLERİ
-============================= */
-.stats {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin: 10px 0;
-}
-
-.pill {
-  background: #122b4a;
-  padding: 8px 12px;
-  border-radius: 100px;
-  border: 1px solid var(--space-accent-soft);
-}
-
-/* =============================
+/* ======================================
    MOBİL UYUMLULUK
-============================= */
-@media (max-width: 900px) {
+====================================== */
+@media(max-width:900px){
+  body { flex-direction:column; }
   .sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--space-border);
+    width:100%;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    height:auto;
   }
-
-  .layout {
-    margin-left: 0;
+  .sb-nav {
+    flex-direction:row;
+    overflow-x:auto;
   }
-
-  .grid {
-    grid-template-columns: 1fr;
+  .container.layout {
+    padding:15px;
+    height:calc(100vh - 120px);
   }
 }
