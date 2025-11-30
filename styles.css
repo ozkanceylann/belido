@@ -269,3 +269,261 @@ tr:nth-child(even) td{background:#fafafa}
     width: 120px;
   }
 }
+.tank-viz-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 20px;
+}
+
+.tank-card {
+  padding: 20px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+
+.tank-3d-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.tank-3d {
+  width: 110px;
+  height: 240px;
+  background: linear-gradient(180deg,#ffffff,#eeeeee);
+  border: 2px solid #ddd;
+  border-radius: 70px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tank-3d .level {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.level.extra   { background: #e8c76e; }
+.level.natural { background: #a3b2a6; }
+.level.ham     { background: #ccc; }
+
+.tank-info {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.tank-viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.tank-card {
+  padding: 18px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.tank-3d-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.tank-3d {
+  width: 120px;
+  height: 260px;
+  border-radius: 70px;
+  border: 2px solid #d1d1d1;
+  background: linear-gradient(180deg, #ffffff, #eaeaea);
+  position: relative;
+  overflow: hidden;
+}
+
+.level {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.level.extra {
+  background: linear-gradient(180deg, #e8d08c, #d9b15a);
+}
+
+.level.natural {
+  background: linear-gradient(180deg, #8fa88d, #758c6a);
+}
+
+.level.ham {
+  background: linear-gradient(180deg, #e5e5e5, #c9c9c9);
+}
+
+/* Cam parlama efekti */
+.tank-3d::before,
+.tank-3d::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  border-radius: 60px;
+}
+
+.tank-3d::before {
+  left: 15%;
+  width: 20%;
+  height: 100%;
+  background: rgba(255,255,255,0.25);
+  filter: blur(3px);
+}
+
+.tank-3d::after {
+  right: 15%;
+  width: 10%;
+  height: 100%;
+  background: rgba(255,255,255,0.2);
+  filter: blur(4px);
+}
+
+/* === 3D Tank Kapsayıcı === */
+.tank-3d-card {
+    width: 280px;
+    margin: 20px auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Tank gövdesi */
+.tank-3d {
+    position: relative;
+    width: 120px;
+    height: 260px;
+    border-radius: 60px;
+    background: linear-gradient(to bottom, #ffffff, #e8e8e8);
+    border: 2px solid #d1d1d1;
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.15);
+}
+
+/* Sıvı katmanları */
+.tank-3d .liquid {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Renkler */
+.liquid.extra {
+    background: linear-gradient(to top, #d9b24c, #e9cf6b);
+}
+
+.liquid.natural {
+    background: linear-gradient(to top, #7d9261, #9fb688);
+}
+
+.liquid.ham {
+    background: linear-gradient(to top, #b7b7b7, #e3e3e3);
+}
+
+/* Tank Bilgi Yazıları */
+.tank-info {
+    margin-top: 10px;
+    line-height: 1.3;
+    font-size: 15px;
+}
+
+/* Tüm tank gridini ortala */
+.tank-viz-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center !important;
+    gap: 40px;
+}
+
+/* Mobile */
+@media(max-width: 600px) {
+    .tank-3d {
+        width: 100px;
+        height: 220px;
+    }
+}
+/* 3D Tank dış görünüş */
+.tank-3d {
+    position: relative;
+    width: 140px;
+    height: 300px;
+    border-radius: 70px;
+    background: linear-gradient(to bottom, #fafafa, #e6e6e6);
+    border: 2px solid #cfcfcf;
+    overflow: hidden;
+    box-shadow: inset 0 0 25px rgba(0,0,0,0.15);
+}
+
+/* Katmanlar */
+.liquid {
+    position: absolute;
+    width: 100%;
+    left: 0;
+}
+
+/* Renkler */
+.liquid.extra {
+    background: linear-gradient(to top, #d4b24c, #f0d878);
+}
+.liquid.natural {
+    background: linear-gradient(to top, #4d5f42, #7a8f63);
+}
+.liquid.ham {
+    background: linear-gradient(to top, #bcbcbc, #e6e6e6);
+}
+
+/* Kart düzeni */
+.tank-3d-card {
+    width: 280px;
+    margin: 20px;
+    text-align: center;
+}
+/* ---- SIDEBAR FOOTER OZ YAZILIM ---- */
+.sb-footer {
+  margin-top: auto;
+  padding: 20px 10px;
+  text-align: center;
+  opacity: 0.95;
+}
+
+.oz-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #e9d8a6; /* soft gold */
+  text-shadow: 0 0 6px rgba(255, 215, 100, 0.5);
+}
+
+.oz-soft .line-left,
+.oz-soft .line-right {
+  width: 22px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e9d8a6);
+  border-radius: 2px;
+}
+
+.oz-soft .line-right {
+  background: linear-gradient(90deg, #e9d8a6, transparent);
+}
+
+/* küçük parıltı animasyonu */
+.oz-soft .text {
+  animation: goldPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes goldPulse {
+  0%   { text-shadow: 0 0 4px rgba(255,240,200,0.3); }
+  50%  { text-shadow: 0 0 10px rgba(255,220,120,0.8); }
+  100% { text-shadow: 0 0 4px rgba(255,240,200,0.3); }
+}

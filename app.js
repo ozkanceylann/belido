@@ -61,15 +61,63 @@ async function loadSuppliers() {
   if (sel) sel.innerHTML = (data||[]).map(s => `<option value="${s.id}">${s.name}</option>`).join("");
   renderSupplierTable(data||[]);
 }
+// 2) loadTanks: aktif/pasif ayır + iki tabloya bas
 async function loadTanks() {
   const { data } = await supa.from("v_tank_status").select("*");
+
+  const list = Array.isArray(data) ? data : [];
+  const active   = list.filter(t => t.is_active === true || t.is_active === null);
+  const inactive = list.filter(t => t.is_active === false);
+
   const tankSel1 = document.getElementById("tankSelect1");
   const tankSel2 = document.getElementById("tankSelect2");
-  if (tankSel1) tankSel1.innerHTML = (data||[]).map(t => `<option value="${t.tank_id}">${t.tank_name}</option>`).join("");
+  if (tankSel1) tankSel1.innerHTML = active.map(t => `<option value="${t.tank_id}">${t.tank_name}</option>`).join("");
   if (tankSel2) tankSel2.innerHTML = tankSel1?.innerHTML || "";
-  renderTankTable(data||[]);
-  buildTankQuality3D(); // 3D viz
+
+  // Aktifler
+  renderTankTable(active);
+  renderTank3DList(active);
+  if (typeof buildTankQuality3D === "function") buildTankQuality3D(active);
+
+  // Arşiv (silinenler) – varsa bas
+  if (document.querySelector("#tankArchiveTable tbody")) {
+    renderTankArchiveTable(inactive);
+  }
 }
+
+// 3) Sil (soft) ve Geri Yükle
+function deleteTank(id){
+  openConfirm("Bu tank (soft delete) kaldırılsın mı?", async ()=>{
+    const { error } = await supa.from("tanks").update({ is_active:false }).eq("id", id);
+    if (error) { alert(error.message); return; }
+    loadTanks();
+  });
+}
+
+async function restoreTank(id){
+  const { error } = await supa.from("tanks").update({ is_active:true }).eq("id", id);
+  if (error) { alert(error.message); return; }
+  loadTanks();
+}
+
+// 4) Arşiv tablosu renderer (silinenler)
+function renderTankArchiveTable(rows){
+  const tb = document.querySelector("#tankArchiveTable tbody");
+  if (!tb) return;
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.tank_name}</td>
+      <td>${r.capacity_kg ?? 0}</td>
+      <td>${r.current_calc_kg ?? 0}</td>
+      <td><span class="pill danger">Pasif</span></td>
+      <td>
+        <button onclick="restoreTank(${r.tank_id})" class="btn">Geri Yükle</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+
 
 /* ============ RENDER TABLES ============ */
 function renderEntryTable(rows) {
@@ -125,6 +173,58 @@ function renderTankTable(rows) {
     </tr>
   `).join("");
 }
+
+/* ===============================
+   3D TANK RENDER (FINAL VERSION)
+================================ */
+function renderTank3DList(rows) {
+  const container = document.getElementById("tank3DContainer");
+  if (!container) return;
+
+  container.innerHTML = rows.map(t => {
+
+    const extra = Number(t.extra_net);
+    const natural = Number(t.natural_net);
+    const ham = Number(t.ham_net);
+
+    const total = extra + natural + ham;
+    const cap = Number(t.capacity_kg);
+
+    // Doluluk yüzdesi
+    const percent = cap > 0 ? (total / cap) * 100 : 0;
+
+    // HER KATMAN KAPASİTEYE GÖRE HESAPLANIR!
+    const extraH = cap > 0 ? (extra / cap) * 100 : 0;
+    const naturalH = cap > 0 ? (natural / cap) * 100 : 0;
+    const hamH = cap > 0 ? (ham / cap) * 100 : 0;
+
+    return `
+      <div class="tank-3d-card">
+
+        <h4>${t.tank_name}</h4>
+
+        <div class="tank-3d">
+
+          <!-- 3 RENKLİ KATMANLAR -->
+          <div class="liquid extra" style="height:${extraH}%"></div>
+          <div class="liquid natural" style="height:${naturalH}%; bottom:${extraH}%"></div>
+          <div class="liquid ham" style="height:${hamH}%; bottom:${extraH + naturalH}%"></div>
+
+        </div>
+
+        <div class="tank-info">
+          <p>Doluluk: <strong>${percent.toFixed(1)}%</strong></p>
+          <p>Mevcut: <strong>${total.toFixed(1)} kg</strong></p>
+          <p>EXTRA: <strong>${extra.toFixed(1)} kg</strong></p>
+          <p>NATURAL 1.: <strong>${natural.toFixed(1)} kg</strong></p>
+          <p>HAM: <strong>${ham.toFixed(1)} kg</strong></p>
+        </div>
+
+      </div>
+    `;
+  }).join("");
+}
+
 
 
 // SIDEBAR dışına tıklayınca kapat
@@ -340,10 +440,45 @@ async function saveEdit() {
 }
 
 /* ============ DELETE (Soft/Hard) ============ */
-function deleteEntry(id){ openConfirm("Bu giriş kaydı silinsin mi?", async ()=>{ await supa.from("oil_entries").delete().eq("id", id); refreshAll(); }); }
-function deleteExit(id){ openConfirm("Bu çıkış kaydı silinsin mi?", async ()=>{ await supa.from("oil_exits").delete().eq("id", id); refreshAll(); }); }
-function deleteTank(id){ openConfirm("Bu tank (soft delete) kaldırılsın mı?", async ()=>{ await supa.from("tanks").update({is_active:false}).eq("id", id); refreshAll(); }); }
-function deleteSupplier(id){ openConfirm("Bu tedarikçi (soft delete) kaldırılsın mı?", async ()=>{ await supa.from("suppliers").update({is_active:false}).eq("id", id); refreshAll(); }); }
+function deleteEntry(id){
+  openConfirm("Bu giriş kaydı silinsin mi?", async ()=>{
+    await supa.from("oil_entries").delete().eq("id", id);
+    refreshAll();
+  });
+}
+
+function deleteExit(id){
+  openConfirm("Bu çıkış kaydı silinsin mi?", async ()=>{
+    await supa.from("oil_exits").delete().eq("id", id);
+    refreshAll();
+  });
+}
+
+function deleteTank(id){
+  openConfirm("Bu tank (soft delete) kaldırılsın mı?", async ()=>{
+    const { error } = await supa
+      .from("tanks")
+      .update({ is_active: false })
+      .eq("id", id);
+
+    if(error){
+      console.error("Tank delete error:", error);
+      alert(error.message);
+    } else {
+      refreshAll();
+    }
+  });
+}
+
+
+function deleteSupplier(id){
+  openConfirm("Bu tedarikçi (soft delete) kaldırılsın mı?", async ()=>{
+    await supa.from("suppliers")
+      .update({ is_active: false })
+      .eq("id", id);
+    refreshAll();
+  });
+}
 
 /* ============ RAPORLAR + EXCEL ============ */
 document.getElementById("btnRunReport")?.addEventListener("click", runReport);

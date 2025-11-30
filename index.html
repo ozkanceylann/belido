@@ -3,14 +3,14 @@
 ============================= -->
 <!doctype html>
 <html lang="tr">
-<head>
+<head> 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Belido Stok Paneli</title>
 
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
-
+<link rel="icon" type="image/x-icon" href="favicon.ico">
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
@@ -40,6 +40,14 @@
     <button class="sb-link" data-tab="rapor">Raporlar</button>
     <button class="sb-link admin-only" data-tab="ayarlar">Ayarlar</button>
   </nav>
+  <div class="sb-footer">
+  <span class="oz-soft">
+    <span class="line-left"></span>
+    <span class="text">Oz Yazılım</span>
+    <span class="line-right"></span>
+  </span>
+</div>
+
 </aside>
 
 <!-- HEADER -->
@@ -157,6 +165,14 @@
   <section id="cikis" class="tab">
     <h2>Mal Çıkışı</h2>
     <form id="exitForm" class="card form-grid">
+      <label>Kalite
+  <select name="kalite" required>
+    <option value="EXTRA V.">EXTRA V.</option>
+    <option value="NATURAL 1.">NATURAL 1.</option>
+    <option value="HAM">HAM</option>
+  </select>
+</label>
+
       <label>Tarih<input type="date" name="date" required /></label>
       <label>Tank<select name="tank_id" id="tankSelect2" required></select></label>
       <label>KG<input type="number" step="0.001" name="kg" required /></label>
@@ -164,6 +180,7 @@
       <label>Komisyon<input type="number" step="0.01" name="komisyon" /></label>
       <label>Fatura No<input type="text" name="invoice_no" /></label>
       <label class="full">Açıklama<input type="text" name="description" /></label>
+      
 
       <div class="form-actions full">
         <button class="btn primary">Kaydet</button>
@@ -184,43 +201,73 @@
     </div>
   </section>
 
-  <!-- TANKLAR -->
-  <section id="tanklar" class="tab">
-    <h2>Tanklar</h2>
+<!-- TANKLAR -->
+<section id="tanklar" class="tab">
+  <h2>Tanklar</h2>
 
-    <form id="tankForm" class="card form-grid">
-      <label>Tank Adı<input type="text" name="tank_name" required /></label>
-      <label>Kapasite (KG)<input type="number" step="0.001" name="capacity_kg" required /></label>
-      <div class="form-actions">
-        <button class="btn secondary">Yeni Tank Ekle</button>
-        <p class="muted" id="tankMsg"></p>
-      </div>
-    </form>
+  <!-- TANK EKLEME FORMU -->
+  <form id="tankForm" class="card form-grid">
+    <label>Tank Adı
+      <input type="text" name="tank_name" required />
+    </label>
 
-    <div class="card">
-      <h3>Kalite Bazlı 3D Görünüm</h3>
+    <label>Kapasite (KG)
+      <input type="number" step="0.001" name="capacity_kg" required />
+    </label>
 
-      <div class="legend">
-        <span><i class="chip chip-extra"></i> EXTRA V.</span>
-        <span><i class="chip chip-natural"></i> NATURAL 1.</span>
-        <span><i class="chip chip-ham"></i> HAM</span>
-      </div>
+    <div class="form-actions">
+      <button class="btn secondary">Yeni Tank Ekle</button>
+      <p class="muted" id="tankMsg"></p>
+    </div>
+  </form>
 
-      <div id="tankViz" class="tank-viz-grid"></div>
+  <!-- 3D TANK GÖRÜNÜMÜ -->
+  <div class="card">
+    <h3>Kalite Bazlı 3D Görünüm</h3>
+
+    <div class="legend">
+      <span><i class="chip chip-extra"></i> EXTRA V.</span>
+      <span><i class="chip chip-natural"></i> NATURAL 1.</span>
+      <span><i class="chip chip-ham"></i> HAM</span>
     </div>
 
-    <div class="card">
-      <table id="tankTable">
-        <thead>
-          <tr>
-            <th>Tank</th><th>Kapasite</th><th>Mevcut KG</th><th>Doluluk %</th>
-            <th>Ort. Asit</th><th>Ort. K232</th><th>Ort. ΔK</th><th>İşlem</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
+    <!-- 📌 JS Bu ID'yi kullanıyor (DOĞRU OLAN) -->
+    <div id="tank3DContainer" class="tank-viz-grid"></div>
+  </div>
+  <!-- 5) (İsteğe bağlı) Tanklar bölümüne arşiv tablosu ekle -->
+<div class="card">
+  <h3>Arşiv (Silinen Tanklar)</h3>
+  <table id="tankArchiveTable">
+    <thead>
+      <tr>
+        <th>Tank</th><th>Kapasite</th><th>Mevcut (Hesap)</th><th>Durum</th><th>İşlem</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+
+  <!-- TANK TABLOSU -->
+  <div class="card">
+    <table id="tankTable">
+      <thead>
+        <tr>
+          <th>Tank</th>
+          <th>Kapasite</th>
+          <th>Mevcut KG</th>
+          <th>Doluluk %</th>
+          <th>Ort. Asit</th>
+          <th>Ort. K232</th>
+          <th>Ort. ΔK</th>
+          <th>İşlem</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+</section>
 
   <!-- TEDARİKÇİLER -->
   <section id="tedarikci" class="tab">
