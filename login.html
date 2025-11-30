@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Giriş Yap</title>
+  <style>
+    :root{
+      --space-blue:#0a1a2f;
+      --space-blue-light:#122b4a;
+      --space-accent:#3ba9ff;
+      --text:#e8eef7;
+      --muted:#9bb3c9;
+    }
+    body{
+      margin:0; padding:0; height:100vh;
+      background:var(--space-blue);
+      display:flex; align-items:center; justify-content:center;
+      font-family:system-ui, sans-serif; color:var(--text);
+    }
+    .login-box{
+      width:100%; max-width:380px;
+      background:var(--space-blue-light);
+      padding:30px;
+      border-radius:14px;
+      box-shadow:0 0 25px rgba(0,0,0,0.4);
+    }
+    h2{ margin-top:0; text-align:center; }
+    label{ display:flex; flex-direction:column; margin-top:14px; font-size:14px; }
+    input{
+      margin-top:6px;
+      padding:12px;
+      border:none;
+      border-radius:8px;
+      background:#0a1626;
+      color:var(--text);
+    }
+    button{
+      width:100%; margin-top:20px;
+      padding:12px;
+      background:var(--space-accent);
+      color:#001224;
+      border:none;
+      border-radius:8px;
+      cursor:pointer; font-weight:700;
+      font-size:15px;
+    }
+    .muted{ margin-top:10px; font-size:13px; color:var(--muted); text-align:center; }
+  </style>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="login-box">
+  <h2>Giriş Yap</h2>
+
+  <label>Email
+    <input type="email" id="loginEmail" placeholder="mail@example.com">
+  </label>
+
+  <label>Şifre
+    <input type="password" id="loginPassword">
+  </label>
+
+  <button id="btnLogin">Giriş Yap</button>
+  <p id="loginMsg" class="muted"></p>
+</div>
+
+<script>
+  const { createClient } = supabase;
+  const supa = createClient("YOUR_SUPABASE_URL", "YOUR_ANON_KEY");
+
+  document.getElementById('btnLogin').addEventListener('click', async ()=>{
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const msg = document.getElementById('loginMsg');
+
+    const { data, error } = await supa.auth.signInWithPassword({ email, password });
+
+    if(error){
+      msg.textContent = 'Hata: ' + error.message;
+      return;
+    }
+
+    // Başarılı giriş → ana uygulamaya yönlendir
+    window.location.href = "index.html";
+  });
+</script>
+
+</body>
+</html>
