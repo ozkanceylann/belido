@@ -1,183 +1,39 @@
+<!-- ============================
+     login.html  (HTML TAM SET)
+============================= -->
 <!doctype html>
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zeytin Stok Takip – Uzay Mavisi Tema</title>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="styles.css" />
+  <title>Belido | Giriş</title>
 
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-</head>
-<body>
 
-<!-- SIDEBAR -->
-<aside id="sidebar" class="sidebar">
-  <div class="sb-header">
-    <h2 class="sb-logo">Stok Panel</h2>
-    <div class="sb-user">
-      <span id="userEmail">...</span>
-      <button id="btnLogout" class="logout-btn">Çıkış</button>
-    </div>
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="login-body">
+
+<div class="login-box">
+  <div class="login-brand">
+    <img src="logo.png" alt="Belido" class="logo-lg">
+    <h2>Belido Stok Panel</h2>
   </div>
 
-  <nav class="sb-nav">
-    <button class="sb-link active" data-tab="giris">Mal Giriş</button>
-    <button class="sb-link" data-tab="cikis">Mal Çıkış</button>
-    <button class="sb-link" data-tab="tanklar">Tanklar</button>
-    <button class="sb-link" data-tab="rapor">Raporlar</button>
-    <button class="sb-link" data-tab="tedarikci">Tedarikçiler</button>
-  </nav>
-</aside>
+  <label>Email
+    <input type="email" id="loginEmail" placeholder="mail@example.com" autocomplete="username">
+  </label>
 
-<!-- ANA İÇERİK -->
-<main class="container layout">
+  <label>Şifre
+    <input type="password" id="loginPassword" autocomplete="current-password">
+  </label>
 
-  <!-- MAL GİRİŞ -->
-  <section class="tab" id="giris" style="display:block;">
-    <h2>Mal Girişi</h2>
+  <button id="btnLogin" class="btn primary w-full">Giriş Yap</button>
+  <p id="loginMsg" class="muted"></p>
+</div>
 
-    <form id="entryForm" class="card">
-      <div class="grid">
-        <label>Tarih<input type="date" name="date" required /></label>
-        <label>Fiş No<input type="text" name="fis_no" /></label>
-        <label>Tedarikçi<select name="supplier_id" id="supplierSelect"></select></label>
-
-        <label>Tank<select name="tank_id" id="tankSelect1"></select></label>
-        <label>Kalite
-  <select name="kalite" required>
-    <option value="EXTRA V.">EXTRA V.</option>
-    <option value="NATURAL 1.">NATURAL 1.</option>
-    <option value="HAM">HAM</option>
-  </select>
-</label>
-        <label>Asit (%)<input type="number" step="0.0001" name="acid" required /></label>
-
-        <label>KG<input type="number" step="0.001" name="kg" required /></label>
-        <label>Birim Fiyat<input type="number" step="0.01" name="price" /></label>
-        <label>Komisyon<input type="number" step="0.01" name="komisyon" /></label>
-
-        <label>K232<input type="number" step="0.0001" name="k232" /></label>
-        <label>ΔK<input type="number" step="0.0001" name="delta_k" /></label>
-        <label class="full">Açıklama<input type="text" name="aciklama" /></label>
-      </div>
-
-      <button class="primary">Kaydet</button>
-      <p class="muted" id="entryMsg"></p>
-    </form>
-
-    <div class="card">
-      <h3>Son Girişler</h3>
-      <table id="entryTable">
-        <thead>
-          <tr><th>Tarih</th><th>Fiş</th><th>Tedarikçi</th><th>Tank</th><th>KG</th><th>Asit</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- MAL ÇIKIŞ -->
-  <section class="tab" id="cikis">
-    <h2>Mal Çıkış</h2>
-
-    <form id="exitForm" class="card">
-      <div class="grid">
-        <label>Tarih<input type="date" name="date" required /></label>
-        <label>Tank<select name="tank_id" id="tankSelect2"></select></label>
-        <label>KG<input type="number" step="0.001" name="kg" required /></label>
-        <label class="full">Açıklama<input type="text" name="description" /></label>
-      </div>
-      <button class="primary">Kaydet</button>
-      <p class="muted" id="exitMsg"></p>
-    </form>
-
-    <div class="card">
-      <h3>Son Çıkışlar</h3>
-      <table id="exitTable">
-        <thead>
-          <tr><th>Tarih</th><th>Tank</th><th>KG</th><th>Açıklama</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- TANKLAR -->
-  <section class="tab" id="tanklar">
-    <h2>Tanklar</h2>
-
-    <form id="tankForm" class="card">
-      <div class="grid">
-        <label>Tank Adı<input type="text" name="tank_name" required /></label>
-        <label>Kapasite (KG)<input type="number" step="0.001" name="capacity_kg" required /></label>
-      </div>
-      <button class="secondary">Yeni Tank Ekle</button>
-      <p class="muted" id="tankMsg"></p>
-    </form>
-
-    <div class="card">
-      <table id="tankTable">
-        <thead>
-          <tr><th>Tank</th><th>Kapasite</th><th>Mevcut KG</th><th>Doluluk %</th><th>Ort. Asit</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- RAPORLAR -->
-  <section class="tab" id="rapor">
-    <h2>Raporlar</h2>
-
-    <div class="card">
-      <div class="grid">
-        <label>Başlangıç<input type="date" id="repStart"></label>
-        <label>Bitiş<input type="date" id="repEnd"></label>
-        <button id="btnRunReport" class="secondary">Rapor Çalıştır</button>
-      </div>
-
-      <div class="stats" id="reportStats"></div>
-
-      <table id="reportTable">
-        <thead>
-          <tr><th>Tank</th><th>Toplam Giriş</th><th>Toplam Çıkış</th><th>Net Stok</th><th>Ort. Asit</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- TEDARİKÇİLER -->
-  <section class="tab" id="tedarikci">
-    <h2>Tedarikçiler</h2>
-
-    <form id="supplierForm" class="card">
-      <div class="grid">
-        <label>İsim<input type="text" name="name" required /></label>
-        <label>Adres<input type="text" name="address" /></label>
-        <label>Telefon<input type="text" name="phone" /></label>
-      </div>
-      <button class="secondary">Ekle</button>
-      <p class="muted" id="supplierMsg"></p>
-    </form>
-
-    <div class="card">
-      <table id="supplierTable">
-        <thead>
-          <tr><th>İsim</th><th>Adres</th><th>Telefon</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-</main>
-
-<!-- JS -->
 <script src="app.js"></script>
-
 </body>
 </html>
