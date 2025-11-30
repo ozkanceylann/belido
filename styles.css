@@ -27,23 +27,47 @@ body {
   overflow:hidden;
 }
 
-/* ======================================
-   SIDEBAR
+/* ============================= */
+/*         SIDEBAR               */
+/* ============================= */
 
 .sidebar {
   width: 240px;
   height: 100vh;
   position: fixed;
-  left: 0;
   top: 0;
+  left: 0;
   background: var(--space-blue-light);
-  padding: 20px 0;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  padding-top: 20px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+  overflow-y: auto;
 }
 
-.sidebar .sb-header {
+.sb-header {
   padding: 0 20px;
   margin-bottom: 20px;
+}
+
+.sb-logo {
+  margin: 0;
+}
+
+.sb-user {
+  font-size: 13px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.logout-btn {
+  background: var(--space-accent);
+  color: #001224;
+  border: none;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
 }
 
 .sb-nav {
@@ -56,11 +80,17 @@ body {
 .sb-link {
   background: none;
   border: none;
-  padding: 10px;
+  padding: 12px;
   text-align: left;
+  font-size: 15px;
   color: var(--text);
-  cursor: pointer;
   border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sb-link:hover {
+  background: rgba(255,255,255,0.1);
 }
 
 .sb-link.active {
@@ -68,11 +98,17 @@ body {
   color: #001224;
 }
 
-/* ANA İÇERİK */
+
+/* ============================= */
+/*          ANA İÇERİK           */
+/* ============================= */
+
 .container {
-  margin-left: 240px;
+  margin-left: 240px; /* sidebar genişliği kadar boşluk */
   padding: 20px;
+  min-height: 100vh;
 }
+
 
 /* ======================================
    ANA LAYOUT
