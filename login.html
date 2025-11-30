@@ -83,9 +83,7 @@
 </div>
 
 <script>
-  // Supabase bağlantısı app.js içinden geliyor
-  const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
-
+  
   document.getElementById("btnLogin").addEventListener("click", async () => {
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
@@ -109,6 +107,27 @@
     }
 
     msg.textContent = "Başarılı! Yönlendiriliyor...";
+    window.location.href = "index.html";
+  });
+</script>
+<script src="app.js"></script>
+
+<script>
+  document.getElementById("btnLogin").addEventListener("click", async () => {
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+    const msg = document.getElementById("loginMsg");
+
+    const { data, error } = await supa.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      msg.textContent = "Hata: " + error.message;
+      return;
+    }
+
     window.location.href = "index.html";
   });
 </script>
