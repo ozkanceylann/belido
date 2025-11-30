@@ -1,0 +1,68 @@
+<!doctype html>
+<th>Tank</th><th>Kapasite</th><th>Mevcut KG</th><th>Doluluk %</th><th>Ort. Asit</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</section>
+
+
+<!-- RAPORLAR -->
+<section class="tab" id="rapor">
+<h2>Raporlar</h2>
+<div class="card">
+<div class="grid">
+<label> Tarih (Başlangıç) <input type="date" id="repStart" /></label>
+<label> Tarih (Bitiş) <input type="date" id="repEnd" /></label>
+<button id="btnRunReport" class="secondary">Raporu Çalıştır</button>
+</div>
+<div class="stats" id="reportStats"></div>
+<table id="reportTable">
+<thead><tr>
+<th>Tank</th><th>Toplam Giriş (KG)</th><th>Toplam Çıkış (KG)</th><th>Net Stok (KG)</th><th>Ort. Asit</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</section>
+
+
+<!-- TEDARİKÇİLER -->
+<section class="tab" id="tedarikci">
+<h2>Tedarikçiler</h2>
+<form id="supplierForm" class="card">
+<div class="grid">
+<label> İsim <input type="text" name="name" required /></label>
+<label> Adres <input type="text" name="address" /></label>
+<label> Telefon <input type="text" name="phone" /></label>
+</div>
+<button type="submit" class="secondary">Ekle</button>
+<p class="muted" id="supplierMsg"></p>
+</form>
+
+
+<div class="card">
+<table id="supplierTable">
+<thead><tr>
+<th>İsim</th><th>Adres</th><th>Telefon</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</section>
+</main>
+
+
+<footer class="app-footer">
+<small>© Organik Zeytinim – Stok Takip</small>
+</footer>
+
+
+<script>
+// Supabase ayarları – BURAYI DOLDURUN
+window.SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
+window.SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
+</script>
+<script src="app.js"></script>
+</body>
+</html>
