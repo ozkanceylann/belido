@@ -8,15 +8,18 @@ const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 // Supabase Başlat
 // =============================
 const { createClient } = supabase;
-const supa = createClient("SUPABASE_URL", "SUPABASE_ANON_KEY");
+const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // =============================
 // Login kontrol
 // =============================
 async function checkLogin() {
   const { data } = await supa.auth.getUser();
-  if (!data.user) window.location.href = "login.html";
-  else document.getElementById("userEmail").textContent = data.user.email;
+  if (!data.user) {
+    window.location.href = "login.html";
+  } else {
+    document.getElementById("userEmail").textContent = data.user.email;
+  }
 }
 checkLogin();
 
