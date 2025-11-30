@@ -1,136 +1,39 @@
+<!-- ============================
+     login.html  (FINAL)
+============================= -->
 <!doctype html>
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Giriş Yap</title>
+  <title>Belido | Giriş</title>
 
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-  <!-- APP AYARLARI -->
-  <script src="app.js"></script>
-
-  <style>
-    :root{
-      --space-blue:#0a1a2f;
-      --space-blue-light:#122b4a;
-      --space-accent:#3ba9ff;
-      --text:#e8eef7;
-      --muted:#9bb3c9;
-    }
-    body{
-      margin:0; padding:0; height:100vh;
-      background:var(--space-blue);
-      display:flex; align-items:center; justify-content:center;
-      font-family:system-ui, sans-serif; color:var(--text);
-    }
-    .login-box{
-      width:100%; max-width:380px;
-      background:var(--space-blue-light);
-      padding:30px;
-      border-radius:14px;
-      box-shadow:0 0 25px rgba(0,0,0,0.4);
-    }
-    h2{ margin-top:0; text-align:center; }
-    label{
-      display:flex; flex-direction:column;
-      margin-top:14px; font-size:14px;
-    }
-    input{
-      margin-top:6px;
-      padding:12px;
-      border:none;
-      border-radius:8px;
-      background:#0a1626;
-      color:var(--text);
-      border:1px solid #1e334f;
-    }
-    button{
-      width:100%; margin-top:20px;
-      padding:12px;
-      background:var(--space-accent);
-      color:#001224;
-      border:none;
-      border-radius:8px;
-      cursor:pointer; font-weight:700;
-      font-size:15px;
-    }
-    .muted{
-      margin-top:10px;
-      font-size:13px;
-      color:var(--muted);
-      text-align:center;
-      white-space: pre-line;
-    }
-  </style>
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="login-body">
 
 <div class="login-box">
-  <h2>Giriş Yap</h2>
+  <div class="login-brand">
+    <img src="logo.png" alt="Belido" class="logo-lg">
+    <h2>Belido Stok Panel</h2>
+  </div>
 
   <label>Email
-    <input type="email" id="loginEmail" placeholder="mail@example.com">
+    <input type="email" id="loginEmail" placeholder="mail@example.com" autocomplete="username">
   </label>
 
   <label>Şifre
-    <input type="password" id="loginPassword">
+    <input type="password" id="loginPassword" autocomplete="current-password">
   </label>
 
-  <button id="btnLogin">Giriş Yap</button>
+  <button id="btnLogin" class="btn primary w-full">Giriş Yap</button>
   <p id="loginMsg" class="muted"></p>
 </div>
 
-<script>
-  
-  document.getElementById("btnLogin").addEventListener("click", async () => {
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-    const msg = document.getElementById("loginMsg");
-
-    if (!email || !password) {
-      msg.textContent = "Email ve şifre boş olamaz.";
-      return;
-    }
-
-    msg.textContent = "Giriş yapılıyor...";
-
-    const { data, error } = await supa.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
-      msg.textContent = "Hata: " + error.message;
-      return;
-    }
-
-    msg.textContent = "Başarılı! Yönlendiriliyor...";
-    window.location.href = "index.html";
-  });
-</script>
 <script src="app.js"></script>
-
-<script>
-  document.getElementById("btnLogin").addEventListener("click", async () => {
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-    const msg = document.getElementById("loginMsg");
-
-    const { data, error } = await supa.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      msg.textContent = "Hata: " + error.message;
-      return;
-    }
-
-    window.location.href = "index.html";
-  });
-</script>
-
 </body>
 </html>

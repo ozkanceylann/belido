@@ -1,39 +1,336 @@
 <!-- ============================
-     login.html  (HTML TAM SET)
+     index.html  (FINAL)
 ============================= -->
 <!doctype html>
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Belido | Giriş</title>
-
-  <!-- Supabase -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <title>Belido Stok Paneli</title>
 
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
-</head>
-<body class="login-body">
 
-<div class="login-box">
-  <div class="login-brand">
-    <img src="logo.png" alt="Belido" class="logo-lg">
-    <h2>Belido Stok Panel</h2>
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar" class="sidebar">
+  <div class="sb-brand">
+    <img src="logo.png" alt="Belido" class="logo">
+    <div class="brand-text">
+      <strong>Belido</strong>
+      <span>Stok Yönetimi</span>
+    </div>
   </div>
 
-  <label>Email
-    <input type="email" id="loginEmail" placeholder="mail@example.com" autocomplete="username">
-  </label>
+  <div class="sb-user">
+    <span id="userEmail">...</span>
+    <button id="btnLogout" class="btn danger w-full">Çıkış</button>
+  </div>
 
-  <label>Şifre
-    <input type="password" id="loginPassword" autocomplete="current-password">
-  </label>
+  <nav class="sb-nav">
+    <button class="sb-link" data-tab="dashboard">Dashboard</button>
+    <button class="sb-link" data-tab="giris">Mal Girişi</button>
+    <button class="sb-link" data-tab="cikis">Mal Çıkışı</button>
+    <button class="sb-link" data-tab="tanklar">Tanklar</button>
+    <button class="sb-link" data-tab="tedarikci">Tedarikçiler</button>
+    <button class="sb-link" data-tab="rapor">Raporlar</button>
+    <button class="sb-link admin-only" data-tab="ayarlar">Ayarlar</button>
+  </nav>
+</aside>
 
-  <button id="btnLogin" class="btn primary w-full">Giriş Yap</button>
-  <p id="loginMsg" class="muted"></p>
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <button id="menuToggle" class="btn icon mobile-only">☰</button>
+    <img src="logo.png" alt="Belido" class="logo-sm">
+    <h1>Stok Panel</h1>
+  </div>
+  <div class="header-right">
+    <span id="currentRole" class="pill">role: …</span>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="container layout">
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="tab">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">Toplam Stok (KG)</div>
+        <div id="statTotalStock" class="stat-value">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Bugünkü Giriş (KG)</div>
+        <div id="statTodayIn" class="stat-value">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Bugünkü Çıkış (KG)</div>
+        <div id="statTodayOut" class="stat-value">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Ort. Asit / K232 / ΔK</div>
+        <div class="stat-stack">
+          <span id="statAvgAcid">0.0000</span>
+          <span id="statAvgK232">0.0000</span>
+          <span id="statAvgDeltaK">0.0000</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Son 10 Giriş</h3>
+        <table id="entryTable">
+          <thead>
+            <tr>
+              <th>Tarih</th><th>Fiş</th><th>Tedarikçi</th><th>Tank</th><th>KG</th><th>Asit</th><th>İşlem</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Son 10 Çıkış</h3>
+        <table id="exitTable">
+          <thead>
+            <tr>
+              <th>Tarih</th><th>Tank</th><th>KG</th><th>Açıklama</th><th>İşlem</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAL GİRİŞİ -->
+  <section id="giris" class="tab">
+    <h2>Mal Girişi</h2>
+    <form id="entryForm" class="card form-grid">
+      <label>Tarih<input type="date" name="date" required /></label>
+      <label>Fiş No<input type="text" name="fis_no" /></label>
+      <label>Tedarikçi<select name="supplier_id" id="supplierSelect" required></select></label>
+      <label>Tank<select name="tank_id" id="tankSelect1" required></select></label>
+
+      <label>Kalite
+        <select name="kalite" required>
+          <option value="EXTRA V.">EXTRA V.</option>
+          <option value="NATURAL 1.">NATURAL 1.</option>
+          <option value="HAM">HAM</option>
+        </select>
+      </label>
+
+      <label>Asit (%)<input type="number" step="0.0001" name="acid" required /></label>
+      <label>K232<input type="number" step="0.0001" name="k232" /></label>
+      <label>ΔK<input type="number" step="0.0001" name="delta_k" /></label>
+      <label>KG<input type="number" step="0.001" name="kg" required /></label>
+      <label>Birim Fiyat<input type="number" step="0.01" name="price" /></label>
+      <label>Komisyon<input type="number" step="0.01" name="komisyon" /></label>
+      <label class="full">Açıklama<input type="text" name="aciklama" /></label>
+
+      <div class="form-actions full">
+        <button class="btn primary">Kaydet</button>
+        <p class="muted" id="entryMsg"></p>
+      </div>
+    </form>
+
+    <div class="card">
+      <h3>Girişler</h3>
+      <table id="entryTableFull">
+        <thead>
+          <tr>
+            <th>Tarih</th><th>Fiş</th><th>Tedarikçi</th><th>Tank</th><th>KG</th><th>Asit</th><th>Fiyat</th><th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MAL ÇIKIŞI -->
+  <section id="cikis" class="tab">
+    <h2>Mal Çıkışı</h2>
+    <form id="exitForm" class="card form-grid">
+      <label>Tarih<input type="date" name="date" required /></label>
+      <label>Tank<select name="tank_id" id="tankSelect2" required></select></label>
+      <label>KG<input type="number" step="0.001" name="kg" required /></label>
+      <label>Satış Fiyatı<input type="number" step="0.01" name="price" /></label>
+      <label>Komisyon<input type="number" step="0.01" name="komisyon" /></label>
+      <label>Fatura No<input type="text" name="invoice_no" /></label>
+      <label class="full">Açıklama<input type="text" name="description" /></label>
+
+      <div class="form-actions full">
+        <button class="btn primary">Kaydet</button>
+        <p class="muted" id="exitMsg"></p>
+      </div>
+    </form>
+
+    <div class="card">
+      <h3>Çıkışlar</h3>
+      <table id="exitTableFull">
+        <thead>
+          <tr>
+            <th>Tarih</th><th>Tank</th><th>KG</th><th>Fiyat</th><th>Komisyon</th><th>Fatura</th><th>Açıklama</th><th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TANKLAR -->
+  <section id="tanklar" class="tab">
+    <h2>Tanklar</h2>
+
+    <form id="tankForm" class="card form-grid">
+      <label>Tank Adı<input type="text" name="tank_name" required /></label>
+      <label>Kapasite (KG)<input type="number" step="0.001" name="capacity_kg" required /></label>
+      <div class="form-actions">
+        <button class="btn secondary">Yeni Tank Ekle</button>
+        <p class="muted" id="tankMsg"></p>
+      </div>
+    </form>
+
+    <div class="card">
+      <h3>Kalite Bazlı 3D Görünüm</h3>
+
+      <div class="legend">
+        <span><i class="chip chip-extra"></i> EXTRA V.</span>
+        <span><i class="chip chip-natural"></i> NATURAL 1.</span>
+        <span><i class="chip chip-ham"></i> HAM</span>
+      </div>
+
+      <div id="tankViz" class="tank-viz-grid"></div>
+    </div>
+
+    <div class="card">
+      <table id="tankTable">
+        <thead>
+          <tr>
+            <th>Tank</th><th>Kapasite</th><th>Mevcut KG</th><th>Doluluk %</th>
+            <th>Ort. Asit</th><th>Ort. K232</th><th>Ort. ΔK</th><th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TEDARİKÇİLER -->
+  <section id="tedarikci" class="tab">
+    <h2>Tedarikçiler</h2>
+
+    <form id="supplierForm" class="card form-grid">
+      <label>İsim<input type="text" name="name" required /></label>
+      <label>Adres<input type="text" name="address" /></label>
+      <label>Telefon<input type="text" name="phone" /></label>
+      <label>Not<input type="text" name="note" /></label>
+      <div class="form-actions">
+        <button class="btn secondary">Ekle</button>
+        <p class="muted" id="supplierMsg"></p>
+      </div>
+    </form>
+
+    <div class="card">
+      <table id="supplierTable">
+        <thead>
+          <tr><th>İsim</th><th>Adres</th><th>Telefon</th><th>Not</th><th>İşlem</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- RAPORLAR -->
+  <section id="rapor" class="tab">
+    <h2>Raporlar</h2>
+
+    <div class="card form-grid">
+      <label>Başlangıç<input type="date" id="repStart"></label>
+      <label>Bitiş<input type="date" id="repEnd"></label>
+      <label>Tür
+        <select id="repType">
+          <option value="range">Tarih Aralığı</option>
+          <option value="daily">Günlük</option>
+          <option value="weekly">Haftalık</option>
+          <option value="by_quality">Kalite Bazlı</option>
+          <option value="by_supplier">Tedarikçi Bazlı</option>
+          <option value="by_tank">Tank Bazlı</option>
+        </select>
+      </label>
+      <button id="btnRunReport" class="btn secondary">Raporu Çalıştır</button>
+      <button id="btnExcel" class="btn">Excel’e Aktar</button>
+      <div class="stats" id="reportStats"></div>
+    </div>
+
+    <div class="card">
+      <h3>Özet</h3>
+      <table id="reportTable">
+        <thead>
+          <tr>
+            <th>Tank</th><th>Toplam Giriş</th><th>Toplam Çıkış</th><th>Net Stok</th>
+            <th>Ort. Asit</th><th>Ort. K232</th><th>Ort. ΔK</th>
+            <th>Ort. Alış</th><th>Ort. Satış</th><th>KG Başına Kâr</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- AYARLAR (admin) -->
+  <section id="ayarlar" class="tab">
+    <h2>Ayarlar</h2>
+    <div class="card">
+      <p>Admin kullanıcıları, roller ve politikalar burada yönetilecek.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- MODALS -->
+<div id="editModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h3>Düzenle</h3>
+      <button class="btn icon" onclick="closeEdit()">✕</button>
+    </div>
+    <form id="editForm" class="form-grid"></form>
+    <div class="modal-actions">
+      <button class="btn primary" onclick="saveEdit()">Kaydet</button>
+      <button class="btn" onclick="closeEdit()">Kapat</button>
+    </div>
+  </div>
 </div>
 
+<div id="confirmModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h3>Onay</h3>
+      <button class="btn icon" onclick="closeConfirm()">✕</button>
+    </div>
+    <p id="confirmText">Silmek istediğinize emin misiniz?</p>
+    <div class="modal-actions">
+      <button class="btn danger" id="confirmYes">Evet, Sil</button>
+      <button class="btn" onclick="closeConfirm()">Vazgeç</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
 <script src="app.js"></script>
+<script>
+  // İlk yükte dashboard açık kalsın
+  window.addEventListener("load", () => {
+    const first = localStorage.getItem("activeTab") || "dashboard";
+    activateTab(first);
+  });
+</script>
 </body>
 </html>
