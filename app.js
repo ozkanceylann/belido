@@ -12,15 +12,21 @@ const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
 // =============================
 async function checkAuth() {
   const { data } = await supa.auth.getSession();
+
+  // eğer oturum yoksa login'e yolla
   if (!data.session) {
-    window.location.href = "login.html";
+    if (!location.pathname.includes("login.html")) {
+      window.location.href = "login.html";
+    }
     return;
   }
 
-  // Kullanıcı email yazalım
-  document.getElementById("userEmail").textContent =
-    data.session.user.email || "Kullanıcı";
+  // eğer oturum varsa login page'deyse index'e yolla
+  if (location.pathname.includes("login.html")) {
+    window.location.href = "index.html";
+  }
 }
+
 
 if (location.pathname.includes("index.html")) {
   checkAuth();
