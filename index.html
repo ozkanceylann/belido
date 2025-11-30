@@ -1,78 +1,65 @@
 <!doctype html>
-<table id="reportTable">
-<thead><tr>
-<th>Tank</th><th>Toplam Giriş (KG)</th><th>Toplam Çıkış (KG)</th><th>Net Stok (KG)</th><th>Ort. Asit</th>
-</tr></thead>
-<tbody></tbody>
-</table>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zeytin Stok Takip</title>
+<link rel="stylesheet" href="styles.css" />
+<!-- Supabase JS -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<!-- LOGIN EKRANI -->
+<div id="loginScreen" class="card" style="max-width:400px; margin:40px auto; display:block;">
+<h2>Giriş Yap</h2>
+<label>Email
+<input type="email" id="loginEmail" placeholder="mail@example.com" />
+</label>
+<label>Şifre
+<input type="password" id="loginPassword" />
+</label>
+<button id="btnLogin" class="primary" style="width:100%; margin-top:10px;">Giriş Yap</button>
+<p class="muted" id="loginMsg"></p>
 </div>
-</section>
 
 
-<!-- TEDARİKÇİLER -->
-<section class="tab" id="tedarikci">
-<h2>Tedarikçiler</h2>
-<form id="supplierForm" class="card">
+<header style="display:none;" class="app-header">
+<h1>Zeytinyağı Stok / Tank Takip</h1>
+</header>
+
+
+<main style="display:none;" class="container layout">
+<aside id="sidebar" class="sidebar">
+<h3 class="sb-title">Menü</h3>
+<nav class="sb-nav">
+<button class="sb-link active" data-tab="giris">Mal Giriş</button>
+<button class="sb-link" data-tab="cikis">Mal Çıkış</button>
+<button class="sb-link" data-tab="tanklar">Tanklar</button>
+<button class="sb-link" data-tab="rapor">Raporlar</button>
+<button class="sb-link" data-tab="tedarikci">Tedarikçiler</button>
+</nav>
+</aside>
+
+
+<!-- MAL GİRİŞ -->
+<section class="tab" id="giris" style="display:block;">
+<h2>Mal Girişi</h2>
+<form id="entryForm" class="card">
 <div class="grid">
-<label> İsim <input type="text" name="name" required /></label>
-<label> Adres <input type="text" name="address" /></label>
-<label> Telefon <input type="text" name="phone" /></label>
+<label> Tarih <input type="date" name="date" required /></label>
+<label> Fiş No <input type="text" name="fis_no" /></label>
+<label> Tedarikçi <select name="supplier_id" id="supplierSelect"></select></label>
+<label> Tank <select name="tank_id" id="tankSelect1"></select></label>
+<label> Kalite <input type="text" name="kalite" placeholder="EXTRA V. / NATURAL 1." /></label>
+<label> Asit (%) <input type="number" step="0.0001" name="acid" required /></label>
+<label> KG <input type="number" step="0.001" name="kg" required /></label>
+<label> Birim Fiyat <input type="number" step="0.01" name="price" /></label>
+<label> Komisyon <input type="number" step="0.01" name="komisyon" /></label>
+<label> K232 <input type="number" step="0.0001" name="k232" /></label>
+<label> ΔK <input type="number" step="0.0001" name="delta_k" /></label>
+<label class="full"> Açıklama <input type="text" name="aciklama" /></label>
 </div>
-<button type="submit" class="secondary">Ekle</button>
-<p class="muted" id="supplierMsg"></p>
+<button type="submit" class="primary">Kaydet</button>
+<p class="muted" id="entryMsg"></p>
 </form>
-
-
-<div class="card">
-<table id="supplierTable">
-<thead><tr>
-<th>İsim</th><th>Adres</th><th>Telefon</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</section>
-</main>
-
-
-<footer style="display:none;" class="app-footer">
-<small>© Belido – Stok Takip</small>
-</footer>
-
-
-<script>
-// Supabase ayarları – BURAYI DOLDURUN
-window.SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
-window.SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
-</script>
-<script src="app.js"></script>
-<script>
-// LOGIN LOGIC
-const loginScreen = document.getElementById('loginScreen');
-const appHeader = document.querySelector('header');
-const appMain = document.querySelector('main');
-const appFooter = document.querySelector('footer');
-
-
-const btnLogin = document.getElementById('btnLogin');
-btnLogin.addEventListener('click', async () => {
-const email = document.getElementById('loginEmail').value;
-const password = document.getElementById('loginPassword').value;
-const msg = document.getElementById('loginMsg');
-
-
-const { data, error } = await supa.auth.signInWithPassword({ email, password });
-if(error){ msg.textContent = 'Hatalı giriş: ' + error.message; return; }
-
-
-loginScreen.style.display = 'none';
-appHeader.style.display = 'block';
-appMain.style.display = 'block';
-appFooter.style.display = 'block';
-
-
-refreshAll();
-});
-</script>
-</body>
 </html>
