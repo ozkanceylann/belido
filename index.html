@@ -1,22 +1,4 @@
 <!doctype html>
-<th>Tank</th><th>Kapasite</th><th>Mevcut KG</th><th>Doluluk %</th><th>Ort. Asit</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</section>
-
-
-<!-- RAPORLAR -->
-<section class="tab" id="rapor">
-<h2>Raporlar</h2>
-<div class="card">
-<div class="grid">
-<label> Tarih (Başlangıç) <input type="date" id="repStart" /></label>
-<label> Tarih (Bitiş) <input type="date" id="repEnd" /></label>
-<button id="btnRunReport" class="secondary">Raporu Çalıştır</button>
-</div>
-<div class="stats" id="reportStats"></div>
 <table id="reportTable">
 <thead><tr>
 <th>Tank</th><th>Toplam Giriş (KG)</th><th>Toplam Çıkış (KG)</th><th>Net Stok (KG)</th><th>Ort. Asit</th>
@@ -53,7 +35,7 @@
 </main>
 
 
-<footer class="app-footer">
+<footer style="display:none;" class="app-footer">
 <small>© Organik Zeytinim – Stok Takip</small>
 </footer>
 
@@ -64,5 +46,33 @@ window.SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
 window.SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
 </script>
 <script src="app.js"></script>
+<script>
+// LOGIN LOGIC
+const loginScreen = document.getElementById('loginScreen');
+const appHeader = document.querySelector('header');
+const appMain = document.querySelector('main');
+const appFooter = document.querySelector('footer');
+
+
+const btnLogin = document.getElementById('btnLogin');
+btnLogin.addEventListener('click', async () => {
+const email = document.getElementById('loginEmail').value;
+const password = document.getElementById('loginPassword').value;
+const msg = document.getElementById('loginMsg');
+
+
+const { data, error } = await supa.auth.signInWithPassword({ email, password });
+if(error){ msg.textContent = 'Hatalı giriş: ' + error.message; return; }
+
+
+loginScreen.style.display = 'none';
+appHeader.style.display = 'block';
+appMain.style.display = 'block';
+appFooter.style.display = 'block';
+
+
+refreshAll();
+});
+</script>
 </body>
 </html>
