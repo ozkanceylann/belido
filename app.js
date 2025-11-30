@@ -4,307 +4,375 @@
 const SUPABASE_URL = "https://dnicipqyxoadjcizpvxy.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuaWNpcHF5eG9hZGpjaXpwdnh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MTcwNzcsImV4cCI6MjA3ODM5MzA3N30._Roo83R-khWLoiEadVoRMmAnGR1AD4Z_0_5OwbemCwk";
 
+// =============================
+// Supabase Başlat
+// =============================
 const { createClient } = supabase;
-const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
+const supa = createClient("SUPABASE_URL", "SUPABASE_ANON_KEY");
 
 // =============================
-//  LOGIN KONTROLÜ
+// Login kontrol
 // =============================
-async function checkAuth() {
-  const { data } = await supa.auth.getSession();
-
-  // eğer oturum yoksa login'e yolla
-  if (!data.session) {
-    if (!location.pathname.includes("login.html")) {
-      window.location.href = "login.html";
-    }
-    return;
-  }
-
-  // eğer oturum varsa login page'deyse index'e yolla
-  if (location.pathname.includes("login.html")) {
-    window.location.href = "index.html";
-  }
+async function checkLogin() {
+  const { data } = await supa.auth.getUser();
+  if (!data.user) window.location.href = "login.html";
+  else document.getElementById("userEmail").textContent = data.user.email;
 }
-
-
-if (location.pathname.includes("index.html")) {
-  checkAuth();
-}
-
+checkLogin();
 
 // =============================
-//  LOGOUT
+// Logout
 // =============================
-const logoutBtn = document.getElementById("btnLogout");
-
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", async () => {
+const btnLogout = document.getElementById("btnLogout");
+if (btnLogout) {
+  btnLogout.addEventListener("click", async () => {
     await supa.auth.signOut();
     window.location.href = "login.html";
   });
 }
 
-
 // =============================
-//  SIDEBAR TAB GEÇİŞİ
+// Sekme (TAB) sistemi
 // =============================
-const tabButtons = document.querySelectorAll(".sb-link");
-const tabs = document.querySelectorAll(".tab");
-
-tabButtons.forEach((btn) => {
+document.querySelectorAll(".sb-link").forEach(btn => {
   btn.addEventListener("click", () => {
-    tabButtons.forEach((b) => b.classList.remove("active"));
+    document.querySelectorAll(".sb-link").forEach(x => x.classList.remove("active"));
     btn.classList.add("active");
 
-    const id = btn.dataset.tab;
-    tabs.forEach((t) => (t.style.display = t.id === id ? "block" : "none"));
+    const tab = btn.dataset.tab;
+    document.querySelectorAll(".tab").forEach(x => x.style.display = "none");
+    document.getElementById(tab).style.display = "block";
   });
 });
 
 // =============================
-//  DROPDOWN VERİLERİ YÜKLEME
+// Tedarikçi Listesini Yükle
 // =============================
 async function loadSuppliers() {
-  const { data, error } = await supa.from("suppliers").select("*").order("name");
-  if (error) return console.error(error);
+  const { data } = await supa.from("suppliers").select("*").order("id", { ascending: false });
 
-  const sel = document.getElementById("supplierSelect");
-  sel.innerHTML = data.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
+  const s = document.getElementById("supplierSelect");
+  s.innerHTML = data.map(x => `<option value="${x.id}">${x.name}</option>`).join("");
 
-  renderSupplierTable(data);
-}
-
-async function loadTanks() {
-  const { data, error } = await supa.from("v_tank_status").select("*");
-  if (error) return console.error(error);
-
-  const sel1 = document.getElementById("tankSelect1");
-  const sel2 = document.getElementById("tankSelect2");
-
-  sel1.innerHTML = data.map(t => `<option value="${t.tank_id}">${t.tank_name}</option>`).join("");
-  sel2.innerHTML = sel1.innerHTML;
-
-  renderTankTable(data);
-}
-
-// =============================
-//  TABLO RENDER FONKSİYONLARI
-// =============================
-function renderSupplierTable(rows) {
+  // tabloya yaz
   const tb = document.querySelector("#supplierTable tbody");
-  tb.innerHTML = rows.map(r => `
+  tb.innerHTML = data.map(x => `
     <tr>
-      <td>${r.name}</td>
-      <td>${r.address || ""}</td>
-      <td>${r.phone || ""}</td>
+      <td>${x.name}</td>
+      <td>${x.address || ""}</td>
+      <td>${x.phone || ""}</td>
+      <td>${x.note || ""}</td>
     </tr>
   `).join("");
 }
+loadSuppliers();
 
-function renderTankTable(rows) {
+// =============================
+// Tankları yükle
+// =============================
+async function loadTanks() {
+  const { data } = await supa.from("tanks").select("*").order("id", { ascending: true });
+
+  // giriş formu seçim
+  document.getElementById("tankSelect1").innerHTML =
+    data.map(t => `<option value="${t.id}">${t.tank_name}</option>`).join("");
+
+  // çıkış formu seçim
+  document.getElementById("tankSelect2").innerHTML =
+    data.map(t => `<option value="${t.id}">${t.tank_name}</option>`).join("");
+
+  // tank tablosu
   const tb = document.querySelector("#tankTable tbody");
-  tb.innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.tank_name}</td>
-      <td>${r.capacity_kg}</td>
-      <td>${r.current_kg}</td>
-      <td>${r.fill_percent}%</td>
-      <td>${Number(r.weighted_acid).toFixed(4)}</td>
-    </tr>
-  `).join("");
-}
+  tb.innerHTML = "";
 
-function renderEntryTable(rows) {
-  const tb = document.querySelector("#entryTable tbody");
-  tb.innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.date}</td>
-      <td>${r.fis_no || ""}</td>
-      <td>${r.supplier_name || ""}</td>
-      <td>${r.tank_name || ""}</td>
-      <td>${r.kg}</td>
-      <td>${Number(r.acid).toFixed(4)}</td>
-    </tr>
-  `).join("");
-}
+  for (let t of data) {
+    const stock = await calculateTankStock(t.id);
 
-function renderExitTable(rows) {
-  const tb = document.querySelector("#exitTable tbody");
-  tb.innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.date}</td>
-      <td>${r.tank_name || ""}</td>
-      <td>${r.kg}</td>
-      <td>${r.description || ""}</td>
-    </tr>
-  `).join("");
+    tb.innerHTML += `
+      <tr>
+        <td>${t.tank_name}</td>
+        <td>${t.capacity_kg}</td>
+        <td>${stock.total_kg}</td>
+        <td>${stock.percent.toFixed(1)}%</td>
+        <td>${stock.avg_acid.toFixed(4)}</td>
+      </tr>
+    `;
+  }
+
+  loadTankVisuals();
+}
+loadTanks();
+
+// =============================
+// Tank stok hesaplama
+// =============================
+async function calculateTankStock(tank_id) {
+  const { data: entries } = await supa.from("oil_entries").select("*").eq("tank_id", tank_id);
+  const { data: exits } = await supa.from("oil_exits").select("*").eq("tank_id", tank_id);
+
+  let totalKg =
+    (entries?.reduce((a, b) => a + Number(b.kg), 0) || 0) -
+    (exits?.reduce((a, b) => a + Number(b.kg), 0) || 0);
+
+  if (totalKg < 0) totalKg = 0;
+
+  // ağırlıklı asit ortalaması
+  let acidTotal = 0;
+  let kgTotal = 0;
+
+  entries.forEach(e => {
+    acidTotal += Number(e.acid) * Number(e.kg);
+    kgTotal += Number(e.kg);
+  });
+
+  let avg_acid = kgTotal === 0 ? 0 : acidTotal / kgTotal;
+
+  return {
+    total_kg: totalKg,
+    avg_acid: avg_acid,
+    percent: (totalKg / 10000) * 100 // kapasiteyi tank tablosundan çekebilirsin, istersem eklerim
+  };
 }
 
 // =============================
-//  FORMLAR
+// Tank grafik alanı
+// =============================
+async function loadTankVisuals() {
+  const { data: tanks } = await supa.from("tanks").select("*");
+
+  const box = document.getElementById("tankVisuals");
+  box.innerHTML = "";
+
+  for (let t of tanks) {
+    const e = await supa.from("oil_entries").select("*").eq("tank_id", t.id);
+    const x = await supa.from("oil_exits").select("*").eq("tank_id", t.id);
+
+    let extra = 0, nat = 0, ham = 0;
+
+    e.data?.forEach(row => {
+      if (row.kalite === "EXTRA V.") extra += Number(row.kg);
+      if (row.kalite === "NATURAL 1.") nat += Number(row.kg);
+      if (row.kalite === "HAM") ham += Number(row.kg);
+    });
+
+    x.data?.forEach(row => {
+      if (row.kalite === "EXTRA V.") extra -= Number(row.kg);
+      if (row.kalite === "NATURAL 1.") nat -= Number(row.kg);
+      if (row.kalite === "HAM") ham -= Number(row.kg);
+    });
+
+    if (extra < 0) extra = 0;
+    if (nat < 0) nat = 0;
+    if (ham < 0) ham = 0;
+
+    const total = extra + nat + ham;
+    const pct = t.capacity_kg ? (total / t.capacity_kg * 100) : 0;
+
+    box.innerHTML += `
+      <div class="tank-card" id="tank-${t.id}">
+        <div class="tank-card-head">
+          <strong>${t.tank_name}</strong>
+          <span>${pct.toFixed(1)}% dolu</span>
+        </div>
+
+        <div class="tank-bar">
+          <div class="extra" style="width:${total ? (extra / total * 100) : 0}%"></div>
+          <div class="nat" style="width:${total ? (nat / total * 100) : 0}%"></div>
+          <div class="ham" style="width:${total ? (ham / total * 100) : 0}%"></div>
+        </div>
+
+        <div class="tank-legend">
+          <span class="dot extra"></span> EXTRA V.: <b>${extra}</b> kg<br>
+          <span class="dot nat"></span> NATURAL 1.: <b>${nat}</b> kg<br>
+          <span class="dot ham"></span> HAM: <b>${ham}</b> kg
+        </div>
+      </div>
+    `;
+  }
+}
+
+// =============================
+// MAL GİRİŞ – Form Kaydet
 // =============================
 document.getElementById("entryForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const fd = new FormData(e.target);
-  const payload = Object.fromEntries(fd.entries());
+  const obj = Object.fromEntries(fd.entries());
 
-  payload.kg = Number(payload.kg);
-  payload.acid = Number(payload.acid);
-
-  const { error } = await supa.from("oil_entries").insert(payload);
+  const { error } = await supa.from("oil_entries").insert(obj);
   const msg = document.getElementById("entryMsg");
 
-  msg.textContent = error ? "Hata: " + error.message : "Kayıt eklendi";
-  if (!error) e.target.reset();
-  refreshAll();
-});
-
-document.getElementById("exitForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const payload = Object.fromEntries(fd.entries());
-
-  payload.kg = Number(payload.kg);
-
-  const { error } = await supa.from("oil_exits").insert(payload);
-  const msg = document.getElementById("exitMsg");
-
-  msg.textContent = error ? "Hata: " + error.message : "Çıkış yapıldı";
-  if (!error) e.target.reset();
-  refreshAll();
-});
-
-document.getElementById("tankForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const payload = Object.fromEntries(fd.entries());
-  payload.capacity_kg = Number(payload.capacity_kg);
-
-  const { error } = await supa.from("tanks").insert(payload);
-  const msg = document.getElementById("tankMsg");
-
-  msg.textContent = error ? "Hata: " + error.message : "Tank eklendi";
-  if (!error) e.target.reset();
-  refreshAll();
-});
-
-document.getElementById("supplierForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const payload = Object.fromEntries(fd.entries());
-
-  const { error } = await supa.from("suppliers").insert(payload);
-  const msg = document.getElementById("supplierMsg");
-
-  msg.textContent = error ? "Hata: " + error.message : "Tedarikçi eklendi";
-  if (!error) e.target.reset();
-  refreshAll();
-});
-
-// =============================
-//  RAPORLAR
-// =============================
-document.getElementById("btnRunReport").addEventListener("click", async () => {
-  const start = document.getElementById("repStart").value;
-  const end = document.getElementById("repEnd").value;
-
-  let q1 = supa.from("oil_entries").select("kg, acid, date, tank_id, tanks:tank_id(tank_name)");
-  let q2 = supa.from("oil_exits").select("kg, date, tank_id, tanks:tank_id(tank_name)");
-
-  if (start) { q1 = q1.gte("date", start); q2 = q2.gte("date", start); }
-  if (end) { q1 = q1.lte("date", end); q2 = q2.lte("date", end); }
-
-  const [{ data: E }, { data: X }] = await Promise.all([q1, q2]);
-
-  const map = {};
-
-  (E || []).forEach(r => {
-    const name = r.tanks?.tank_name || "-";
-    if (!map[name]) map[name] = { inKg: 0, outKg: 0, acids: [], weights: [] };
-    map[name].inKg += r.kg;
-    map[name].acids.push(r.acid);
-    map[name].weights.push(r.kg);
-  });
-
-  (X || []).forEach(r => {
-    const name = r.tanks?.tank_name || "-";
-    if (!map[name]) map[name] = { inKg: 0, outKg: 0, acids: [], weights: [] };
-    map[name].outKg += r.kg;
-  });
-
-  const tb = document.querySelector("#reportTable tbody");
-  tb.innerHTML = "";
-
-  for (const tank in map) {
-    const d = map[tank];
-    const net = d.inKg - d.outKg;
-
-    let wAcid = 0;
-    const totalW = d.weights.reduce((a, b) => a + b, 0);
-    if (totalW > 0) {
-      wAcid = d.acids.reduce((sum, a, i) => sum + a * d.weights[i], 0) / totalW;
-    }
-
-    tb.innerHTML += `
-      <tr>
-        <td>${tank}</td>
-        <td>${d.inKg}</td>
-        <td>${d.outKg}</td>
-        <td>${net}</td>
-        <td>${wAcid.toFixed(4)}</td>
-      </tr>
-    `;
+  if (error) msg.textContent = "Hata: " + error.message;
+  else {
+    msg.textContent = "Kaydedildi!";
+    e.target.reset();
+    loadTanks();
+    loadEntries();
   }
 });
 
 // =============================
-//  SON LİSTELER
+// MAL ÇIKIŞ – Form Kaydet
 // =============================
-async function refreshRecentLists() {
-  const { data: entries } = await supa
-    .from("oil_entries")
-    .select("date, fis_no, kg, acid, suppliers:supplier_id(name), tanks:tank_id(tank_name)")
-    .order("id", { ascending: false })
-    .limit(10);
+document.getElementById("exitForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const obj = Object.fromEntries(fd.entries());
 
-  const formatted = entries.map(r => ({
-    date: r.date,
-    fis_no: r.fis_no,
-    kg: r.kg,
-    acid: r.acid,
-    supplier_name: r.suppliers?.name,
-    tank_name: r.tanks?.tank_name
-  }));
+  const { error } = await supa.from("oil_exits").insert(obj);
+  const msg = document.getElementById("exitMsg");
 
-  renderEntryTable(formatted);
+  if (error) msg.textContent = "Hata: " + error.message;
+  else {
+    msg.textContent = "Kaydedildi!";
+    e.target.reset();
+    loadTanks();
+    loadExits();
+  }
+});
 
-  const { data: exits } = await supa
-    .from("oil_exits")
-    .select("date, kg, description, tanks:tank_id(tank_name)")
-    .order("id", { ascending: false })
-    .limit(10);
+// =============================
+// Giriş & çıkış tablolarını listele
+// =============================
+async function loadEntries() {
+  const { data } = await supa.from("oil_entries").select("*").order("id", { ascending: false });
 
-  const formatted2 = exits.map(r => ({
-    date: r.date,
-    kg: r.kg,
-    description: r.description,
-    tank_name: r.tanks?.tank_name
-  }));
+  const tb = document.querySelector("#entryTable tbody");
+  tb.innerHTML = data.map(x => `
+    <tr>
+      <td>${x.date}</td>
+      <td>${x.fis_no || ""}</td>
+      <td>${x.supplier_id}</td>
+      <td>${x.tank_id}</td>
+      <td>${x.kalite}</td>
+      <td>${x.kg}</td>
+      <td>${x.acid}</td>
+      <td>${x.price || ""}</td>
+    </tr>
+  `).join("");
+}
+loadEntries();
 
-  renderExitTable(formatted2);
+async function loadExits() {
+  const { data } = await supa.from("oil_exits").select("*").order("id", { ascending: false });
+
+  const tb = document.querySelector("#exitTable tbody");
+  tb.innerHTML = data.map(x => `
+    <tr>
+      <td>${x.date}</td>
+      <td>${x.tank_id}</td>
+      <td>${x.kalite}</td>
+      <td>${x.kg}</td>
+      <td>${x.price || ""}</td>
+      <td>${x.invoice_no || ""}</td>
+      <td>${x.description || ""}</td>
+    </tr>
+  `).join("");
+}
+loadExits();
+
+// =============================
+// Tedarikçi ekle
+// =============================
+document.getElementById("supplierForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const obj = Object.fromEntries(fd.entries());
+
+  const { error } = await supa.from("suppliers").insert(obj);
+  const msg = document.getElementById("supplierMsg");
+
+  if (error) msg.textContent = "Hata: " + error.message;
+  else {
+    msg.textContent = "Eklendi!";
+    e.target.reset();
+    loadSuppliers();
+  }
+});
+
+// =============================
+// RAPORLAR
+// =============================
+document.getElementById("btnRunReport").addEventListener("click", runReport);
+
+async function runReport() {
+  const start = document.getElementById("repStart").value;
+  const end = document.getElementById("repEnd").value;
+
+  const { data: entries } = await supa.from("oil_entries")
+    .select("*")
+    .gte("date", start)
+    .lte("date", end);
+
+  const { data: exits } = await supa.from("oil_exits")
+    .select("*")
+    .gte("date", start)
+    .lte("date", end);
+
+  const qualities = ["EXTRA V.", "NATURAL 1.", "HAM"];
+  const rows = [];
+
+  qualities.forEach(q => {
+    const e = entries.filter(x => x.kalite === q);
+    const x = exits.filter(x => x.kalite === q);
+
+    const entryKg = e.reduce((a, b) => a + Number(b.kg), 0);
+    const exitKg = x.reduce((a, b) => a + Number(b.kg), 0);
+
+    const avgBuy = e.length ? e.reduce((a, b) => a + Number(b.price || 0), 0) / e.length : 0;
+    const avgSell = x.length ? x.reduce((a, b) => a + Number(b.price || 0), 0) / x.length : 0;
+
+    const profit =
+      x.reduce((a, b) => a + (Number(b.kg) * Number(b.price || 0)), 0) -
+      e.reduce((a, b) => a + (Number(b.kg) * Number(b.price || 0)), 0);
+
+    rows.push({
+      kalite: q,
+      entryKg,
+      exitKg,
+      avgBuy,
+      avgSell,
+      profit,
+      net: entryKg - exitKg
+    });
+  });
+
+  renderReport(rows);
+}
+
+function renderReport(rows) {
+  const tb = document.querySelector("#reportTable tbody");
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td class="col-product">${r.kalite}</td>
+      <td class="col-entryKg">${r.entryKg}</td>
+      <td class="col-exitKg">${r.exitKg}</td>
+      <td class="col-avgBuy">${r.avgBuy.toFixed(2)}</td>
+      <td class="col-avgSell">${r.avgSell.toFixed(2)}</td>
+      <td class="col-profit">${r.profit.toFixed(2)}</td>
+      <td class="col-net">${r.net}</td>
+    </tr>
+  `).join("");
 }
 
 // =============================
-//  HEPSİNİ YENİLE
+// EXCEL EXPORT
 // =============================
-async function refreshAll() {
-  await Promise.all([
-    loadSuppliers(),
-    loadTanks(),
-    refreshRecentLists(),
-  ]);
-}
+document.getElementById("btnExcel").addEventListener("click", () => {
+  const table = document.getElementById("reportTable");
+  const wb = XLSX.utils.table_to_book(table, { sheet: "Rapor" });
+  XLSX.writeFile(wb, "rapor.xlsx");
+});
 
-// İlk yükleme
-refreshAll();
+// =============================
+// KOLON GİZLE / GÖSTER
+// =============================
+document.querySelectorAll(".colToggle").forEach(cb => {
+  cb.addEventListener("change", () => {
+    const col = cb.dataset.col;
+    const visible = cb.checked;
+    document.querySelectorAll(`.col-${col}`).forEach(el => {
+      el.style.display = visible ? "" : "none";
+    });
+  });
+});
