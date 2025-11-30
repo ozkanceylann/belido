@@ -9,9 +9,10 @@
   <title>Belido Stok Paneli</title>
 
   <!-- Styles -->
-<link rel="icon" href="./favicon.ico">
-<link rel="stylesheet" href="./styles.css">
-<script src="./app.js"></script>
+   <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#253e27">
+  <link rel="stylesheet" href="styles.css" />
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
@@ -380,5 +381,13 @@
     activateTab(first);
   });
 </script>
+<nav class="mobile-nav">
+  <button data-tab="dashboard">🏠</button>
+  <button data-tab="giris">⬆️</button>
+  <button data-tab="cikis">⬇️</button>
+  <button data-tab="tanklar">🛢️</button>
+  <button data-tab="rapor">📊</button>
+</nav>
+
 </body>
 </html>
