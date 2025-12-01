@@ -347,6 +347,7 @@ document.getElementById("entryForm")?.addEventListener("submit", async e => {
   document.getElementById("entryMsg").textContent = error ? "Hata: " + error.message : "Kayıt eklendi";
   if (!error) e.target.reset();
   refreshAll();
+
 });
 document.getElementById("exitForm")?.addEventListener("submit", async e => {
   e.preventDefault();
@@ -380,6 +381,119 @@ document.getElementById("supplierForm")?.addEventListener("submit", async e => {
   if (!error) e.target.reset();
   refreshAll();
 });
+
+/* =================== DASHBOARD DATA =================== */
+/* View: v_dashboard_summary (daha önce verdiğim SQL) */
+async function loadDashboard() {
+    const { data, error } = await supa
+        .from("v_dashboard_summary")
+        .select("*");
+
+    if (error || !data || data.length === 0) {
+        console.error("Dashboard error:", error);
+        return;
+    }
+
+    const d = data[0];
+
+    // 📌 data-key ile çalışan otomatik setter
+    document.querySelectorAll("[data-key]").forEach(el => {
+        const key = el.getAttribute("data-key");
+        let val = d[key];
+
+        if (val === undefined || val === null) val = 0;
+
+        // Para formatı
+        if (key.includes("cost") || key.includes("price") || key.includes("sales")) {
+            el.textContent = "₺" + Number(val).toLocaleString("tr-TR");
+        }
+        // Normal sayı
+        else {
+            el.textContent = val;
+        }
+    });
+
+    // 📌 Bugün giriş/çıkış (ID ile)
+    document.getElementById("kpiTodayIn").textContent = d.total_in ?? 0;
+    document.getElementById("kpiTodayOut").textContent = d.total_out ?? 0;
+
+    console.log("Dashboard updated:", d);
+}
+
+
+/* =================== SIMPLE CANVAS CHARTS =================== */
+function drawDonut(id, items){
+  const c = document.getElementById(id); if(!c) return;
+  const ctx = c.getContext('2d'); const W=c.width, H=c.height;
+  ctx.clearRect(0,0,W,H);
+  const total = items.reduce((s,x)=>s+(+x.value||0),0) || 1;
+  let a0 = -Math.PI/2;
+  items.forEach(it=>{
+    const ang = (it.value/total)*Math.PI*2;
+    ctx.beginPath();
+    ctx.arc(W/2, H/2, Math.min(W,H)/2-16, a0, a0+ang);
+    ctx.strokeStyle = it.color; ctx.lineWidth = 28; ctx.lineCap='round';
+    ctx.shadowColor = it.color; ctx.shadowBlur = 12;
+    ctx.stroke(); ctx.shadowBlur = 0;
+    a0 += ang;
+  });
+  // inner hole (glass)
+  ctx.beginPath();
+  ctx.fillStyle = 'rgba(0,0,0,.35)';
+  ctx.arc(W/2, H/2, Math.min(W,H)/2-42, 0, Math.PI*2);
+  ctx.fill();
+
+  // center text
+  ctx.fillStyle='#e9d8a6';
+  ctx.font='600 18px system-ui';
+  ctx.textAlign='center';
+  ctx.fillText('Toplam: '+ total.toLocaleString('tr-TR')+' kg', W/2, H/2+6);
+}
+
+function drawBars(id, rows){
+  const c = document.getElementById(id); if(!c) return;
+  const ctx = c.getContext('2d'); const W=c.width, H=c.height;
+  ctx.clearRect(0,0,W,H);
+  const pad=40, baseY=H-pad;
+  const max = Math.max(...rows.flatMap(r=>[r.in,r.out])) || 1;
+  const bw = (W - pad*2)/rows.length;
+  ctx.lineWidth=10; ctx.lineCap='round';
+
+  rows.forEach((r,i)=>{
+    const x = pad + i*bw + bw*0.2;
+    // IN
+    const h1 = (r.in/max)*(H-pad*1.6);
+    ctx.strokeStyle = r.color; ctx.shadowColor=r.color; ctx.shadowBlur=10;
+    ctx.beginPath(); ctx.moveTo(x, baseY); ctx.lineTo(x, baseY-h1); ctx.stroke();
+
+    // OUT
+    const x2 = x + bw*0.35;
+    const h2 = (r.out/max)*(H-pad*1.6);
+    ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.shadowColor='rgba(255,255,255,.5)'; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.moveTo(x2, baseY); ctx.lineTo(x2, baseY-h2); ctx.stroke();
+
+    ctx.shadowBlur=0;
+    // labels
+    ctx.fillStyle='#ddd'; ctx.font='12px system-ui'; ctx.textAlign='center';
+    ctx.fillText(r.label, x + bw*0.18, baseY+16);
+  });
+
+  // axis
+  ctx.strokeStyle='rgba(255,255,255,.15)';
+  ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(pad, baseY); ctx.lineTo(W-pad, baseY); ctx.stroke();
+}
+
+/* Hook dashboard into your existing refresh */
+if(typeof refreshAll === 'function'){
+  const _refreshAll = refreshAll;
+  refreshAll = async function(){
+    await _refreshAll();
+    await loadDashboard();
+  }
+}else{
+  // fallback first load
+  window.addEventListener('load', loadDashboard);
+}
 
 /* ============ EDIT (ENTRY / EXIT) ============ */
 async function editEntry(id) {
@@ -661,6 +775,7 @@ document.getElementById("btnLogin")?.addEventListener("click", async () => {
   window.location.href = "index.html";
 });
 
+
 /* global helpers for edit buttons */
 window.editEntry = editEntry;
 window.deleteEntry = deleteEntry;
@@ -672,3 +787,5 @@ window.saveEdit = saveEdit;
 window.closeEdit = closeEdit;
 window.closeConfirm = closeConfirm;
 window.activateTab = activateTab;
+// DASHBOARD HER YÜKLEMEDE ÇALIŞSIN
+document.addEventListener("DOMContentLoaded", loadDashboard);

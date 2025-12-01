@@ -70,57 +70,81 @@
 <!-- MAIN -->
 <main class="container layout">
 
-  <!-- DASHBOARD -->
-  <section id="dashboard" class="tab">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-title">Toplam Stok (KG)</div>
-        <div id="statTotalStock" class="stat-value">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Bugünkü Giriş (KG)</div>
-        <div id="statTodayIn" class="stat-value">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Bugünkü Çıkış (KG)</div>
-        <div id="statTodayOut" class="stat-value">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Ort. Asit / K232 / ΔK</div>
-        <div class="stat-stack">
-          <span id="statAvgAcid">0.0000</span>
-          <span id="statAvgK232">0.0000</span>
-          <span id="statAvgDeltaK">0.0000</span>
-        </div>
+  <!-- DASHBOARD (FULL GLASS + MOBILE READY) -->
+<section id="dashboard" class="tab">
+  <div class="dash-hero">
+    <div class="brand-chip">
+      <img src="logo.png" alt="Belido" />
+      <span>Belido Stok Paneli</span>
+    </div>
+    <div class="hero-glow"></div>
+  </div>
+
+  <div class="dash-grid">
+    <!-- KPI Cards -->
+    <div class="kpi glass" id="kpiStock">
+      <div class="kpi-icon">🛢️</div>
+      <div class="kpi-title">Toplam Stok (KG)</div>
+      <div class="kpi-value" data-key="total_stock">0</div>
+      <div class="kpi-sub">
+        <span>Extra:</span><b data-key="extra_stock">0</b>
+        <span>Nat.:</span><b data-key="natural_stock">0</b>
+        <span>Ham:</span><b data-key="ham_stock">0</b>
       </div>
     </div>
 
-    <div class="grid-2">
-      <div class="card">
-        <h3>Son 10 Giriş</h3>
-        <table id="entryTable">
-          <thead>
-            <tr>
-              <th>Tarih</th><th>Fiş</th><th>Tedarikçi</th><th>Tank</th><th>KG</th><th>Asit</th><th>İşlem</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div class="card">
-        <h3>Son 10 Çıkış</h3>
-        <table id="exitTable">
-          <thead>
-            <tr>
-              <th>Tarih</th><th>Tank</th><th>KG</th><th>Açıklama</th><th>İşlem</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+    <div class="kpi glass" id="kpiIn">
+      <div class="kpi-icon">⬆️</div>
+      <div class="kpi-title">Giren Ürün (Bugün)</div>
+      <div class="kpi-value" id="kpiTodayIn">0</div>
+      <div class="kpi-sub">
+        Asit Ø: <b data-key="avg_acid_in">0.0000</b> •
+        K232 Ø: <b data-key="avg_k232_in">0.0000</b> •
+        ΔK Ø: <b data-key="avg_delta_in">0.0000</b>
       </div>
     </div>
-  </section>
+
+    <div class="kpi glass" id="kpiOut">
+      <div class="kpi-icon">⬇️</div>
+      <div class="kpi-title">Çıkan Ürün (Bugün)</div>
+      <div class="kpi-value" id="kpiTodayOut">0</div>
+      <div class="kpi-sub">
+        Asit Ø: <b data-key="avg_acid_out">0.0000</b> •
+        K232 Ø: <b data-key="avg_k232_out">0.0000</b> •
+        ΔK Ø: <b data-key="avg_delta_out">0.0000</b>
+      </div>
+    </div>
+
+    <div class="kpi glass" id="kpiMoney">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-title">Finans</div>
+      <div class="kpi-value money" data-key="total_sales_out">₺0</div>
+      <div class="kpi-sub">
+        Alış Maliyeti: <b data-key="total_cost_in">₺0</b> •
+        Br. Alış: <b data-key="unit_cost_in">₺0</b> •
+        Br. Satış: <b data-key="unit_price_out">₺0</b>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="card glass chart">
+      <div class="card-head">
+        <h3>Stok Dağılımı</h3>
+        <span class="chip">Extra / Nat. / Ham</span>
+      </div>
+      <canvas id="chartDonut" width="480" height="320"></canvas>
+    </div>
+
+    <div class="card glass chart">
+      <div class="card-head">
+        <h3>Giriş – Çıkış Karşılaştırma</h3>
+        <span class="chip">KG</span>
+      </div>
+      <canvas id="chartBars" width="480" height="320"></canvas>
+    </div>
+  </div>
+</section>
+
 
   <!-- MAL GİRİŞİ -->
   <section id="giris" class="tab">

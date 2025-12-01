@@ -527,3 +527,112 @@ tr:nth-child(even) td{background:#fafafa}
   50%  { text-shadow: 0 0 10px rgba(255,220,120,0.8); }
   100% { text-shadow: 0 0 4px rgba(255,240,200,0.3); }
 }
+
+/* ============ DASHBOARD GLASS ============ */
+.dash-hero{
+  position:relative; height:110px; margin:0 0 10px; overflow:hidden;
+  border-radius:16px; background:linear-gradient(135deg,#0d2a16,#1c3822);
+  box-shadow:0 6px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.dash-hero .hero-glow{
+  position:absolute; inset:-40% -20% auto -20%;
+  height:200%; background:radial-gradient(closest-side,rgba(255,215,130,.25),transparent 55%);
+  filter:blur(18px); animation:floatGlow 8s ease-in-out infinite;
+}
+@keyframes floatGlow{ 0%,100%{transform:translateX(0)} 50%{transform:translateX(12%)} }
+
+.brand-chip{ position:absolute; inset:auto auto 16px 16px; display:flex; align-items:center; gap:10px;
+  padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.06); backdrop-filter:blur(6px);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08) inset; color:#e9d8a6; font-weight:600; letter-spacing:.3px;
+}
+.brand-chip img{ width:26px; height:26px; object-fit:contain; filter:drop-shadow(0 0 6px rgba(255,235,170,.6)); }
+
+.dash-grid{
+  display:grid; grid-template-columns:repeat(12,1fr); gap:14px;
+}
+.glass{
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
+  backdrop-filter:blur(8px);
+  box-shadow:0 8px 26px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.kpi{ grid-column:span 3; padding:16px; position:relative; overflow:hidden }
+.kpi:before{
+  content:""; position:absolute; inset:0; background:linear-gradient(120deg,transparent,rgba(255,255,255,.06),transparent);
+  transform:translateX(-100%); animation:shine 5.5s infinite; pointer-events:none;
+}
+@keyframes shine{ 0%{transform:translateX(-100%)} 50%{transform:translateX(0)} 100%{transform:translateX(100%)} }
+
+.kpi-icon{ font-size:24px; margin-bottom:6px; filter:drop-shadow(0 0 6px rgba(255,235,170,.45)); }
+.kpi-title{ font-size:13px; letter-spacing:.4px; opacity:.85; margin-bottom:4px }
+.kpi-value{ font-size:28px; font-weight:800; letter-spacing:.5px; color:#fff; text-shadow:0 0 16px rgba(233,216,166,.35) }
+.kpi-value.money{ font-feature-settings:"tnum" 1; }
+.kpi-sub{ margin-top:6px; font-size:12px; opacity:.85; display:flex; gap:8px; flex-wrap:wrap }
+.kpi-sub b{ color:#e9d8a6 }
+
+.card.chart{ grid-column:span 6; padding:14px }
+.card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px }
+.card-head h3{ font-size:14px; letter-spacing:.4px; opacity:.9 }
+.chip{ padding:3px 8px; border-radius:999px; background:rgba(233,216,166,.12); color:#e9d8a6; font-size:11px }
+
+/* Donut legend dots (canvas overlay for looks) */
+canvas{ width:100%; height:auto; display:block }
+
+/* MOBILE */
+@media (max-width: 900px){
+  .kpi{ grid-column:span 12 }
+  .card.chart{ grid-column:span 12 }
+  .kpi-value{ font-size:24px }
+  .dash-hero{ height:90px }
+}
+
+/* Better number glow on OLED */
+@media (prefers-color-scheme: dark){
+  .kpi-value{ text-shadow:0 0 22px rgba(233,216,166,.22) }
+}
+
+canvas {
+  min-height: 260px !important;
+  max-height: 360px;
+  display: block;
+}
+/* KPI Ana Değerleri — KOYU RENK */
+.kpi-value {
+    color: #1a1a1a !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
+}
+
+/* KPI Başlıkları */
+.kpi-title {
+    color: #2a2a2a !important;
+    font-weight: 700;
+}
+
+/* KPI Alt bilgiler */
+.kpi-sub {
+    color: #555 !important;
+    font-weight: 600;
+}
+
+.kpi-sub b {
+    color: #333 !important;
+}
+
+/* Finans Yazıları Daha Koyu */
+.kpi-value.money {
+    color: #222 !important;
+}
+
+/* Simge rengini biraz daha koyulaştıralım */
+.kpi-icon {
+    color: #2b2b2b !important;
+}
+
+/* Kart Arka Planı Daha Az Parlak / Hafif Koyu */
+.kpi.glass {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,0,0,0.07);
+}
